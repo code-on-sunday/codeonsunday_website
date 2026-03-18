@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@source "../src/**/*.{ts,tsx}";
+
+@theme {
+  --color-accent: #ff3300;
+  --color-accent-dark: #cc2900;
+  --color-surface: #f5f5f3;
+  --color-surface-alt: #eeeee9;
+  --color-dark: #0a0a0a;
+  --color-dark-surface: #141414;
+  --color-dark-muted: #888888;
+  --color-ink: #0a0a0a;
+  --color-ink-muted: #6b6b6b;
+  --color-ink-light: #999999;
+  --color-border: #e0e0e0;
+  --color-border-light: #f0f0f0;
+  --font-display: "Playfair Display", "Georgia", serif;
+  --font-accent: "Cormorant Garamond", "Georgia", serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-weight-900: 900;
+  --font-weight-800: 800;
+  --font-weight-700: 700;
+  --font-weight-600: 600;
+  --font-weight-500: 500;
+  --font-weight-400: 400;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar for dark sections */
+.dark-section::-webkit-scrollbar {
+  width: 4px;
+}
+.dark-section::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
