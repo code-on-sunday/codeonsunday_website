@@ -1,7 +1,11 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import translations, { type Lang } from './translations'
 
-type TranslationType = typeof translations.en
+type DeepStringify<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepStringify<T[K]>
+}
+
+type TranslationType = DeepStringify<typeof translations.en>
 
 interface LanguageContextType {
   lang: Lang
