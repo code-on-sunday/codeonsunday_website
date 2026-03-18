@@ -43,6 +43,10 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-body);
+}
+
+h1.font-display, h2.font-display, h3.font-display, h4.font-display, h5.font-display, h6.font-display {
   font-family: var(--font-display);
 }
 

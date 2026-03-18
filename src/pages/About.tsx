@@ -16,7 +16,7 @@ export default function About() {
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-display font-700"
+            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-body font-700"
           >
             <ArrowLeft size={14} />
             {t.blog.backHome}
@@ -25,7 +25,7 @@ export default function About() {
           <div className="mb-16">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-0.5 bg-accent" />
-              <span className="font-display font-700 text-xs uppercase tracking-[0.2em] text-accent">
+              <span className="font-body font-700 text-xs uppercase tracking-[0.2em] text-accent">
                 {t.about.subtitle}
               </span>
             </div>
@@ -44,7 +44,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <p className="font-display font-700 text-2xl md:text-3xl tracking-tight leading-snug mb-8 text-ink">
+            <p className="font-body font-700 text-2xl md:text-3xl tracking-tight leading-snug mb-8 text-ink">
               {t.about.intro}
             </p>
 
@@ -63,10 +63,10 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="border-l-2 border-accent pl-6">
-              <h3 className="font-display font-700 text-xs uppercase tracking-[0.2em] text-ink-muted mb-4">
+              <h3 className="font-body font-700 text-xs uppercase tracking-[0.2em] text-ink-muted mb-4">
                 {t.about.companyTitle}
               </h3>
-              <p className="font-display font-700 text-base text-ink mb-2">
+              <p className="font-body font-700 text-base text-ink mb-2">
                 {t.about.companyName}
               </p>
               <p className="text-ink-muted text-sm">

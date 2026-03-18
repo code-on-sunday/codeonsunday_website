@@ -63,13 +63,13 @@ export default function Navbar() {
             to="/"
             className="no-underline flex items-center gap-0"
           >
-            <span className="font-display font-700 text-sm tracking-tight text-ink">
+            <span className="font-body font-700 text-sm tracking-tight text-ink">
               code
             </span>
             <span className="italic text-base text-accent" style={{ fontFamily: 'var(--font-accent)' }}>
               on
             </span>
-            <span className="font-display font-700 text-sm tracking-tight text-ink">
+            <span className="font-body font-700 text-sm tracking-tight text-ink">
               sunday
             </span>
           </Link>
@@ -168,7 +168,7 @@ export default function Navbar() {
                   <Link
                     to={link.to}
                     onClick={(e) => { handleHashLink(e, link.to); setMobileOpen(false) }}
-                    className={`font-display font-600 text-2xl no-underline tracking-tight ${
+                    className={`font-body font-600 text-2xl no-underline tracking-tight ${
                       isActive(link.to) ? 'text-accent' : 'text-ink'
                     }`}
                   >

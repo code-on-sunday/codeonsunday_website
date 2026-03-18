@@ -60,7 +60,7 @@ export default function Slides() {
                 />
               </div>
               <div className="p-5">
-                <h3 className="font-display font-700 text-lg text-ink mb-1 group-hover:text-accent transition-colors">
+                <h3 className="font-body font-700 text-lg text-ink mb-1 group-hover:text-accent transition-colors">
                   {deck.title}
                 </h3>
                 {deck.description && (

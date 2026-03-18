@@ -29,9 +29,9 @@ export default function Footer() {
           {/* Brand column */}
           <div className="md:col-span-5">
             <div className="text-lg tracking-tight mb-2 flex items-center gap-0">
-              <span className="font-display font-700 text-sm">code</span>
+              <span className="font-body font-700 text-sm">code</span>
               <span className="italic text-base text-accent" style={{ fontFamily: 'var(--font-accent)' }}>on</span>
-              <span className="font-display font-700 text-sm">sunday</span>
+              <span className="font-body font-700 text-sm">sunday</span>
             </div>
             <p className="text-ink-muted text-sm leading-relaxed mb-3">
               {t.footer.tagline}

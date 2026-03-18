@@ -98,7 +98,7 @@ function BlogSection() {
                         ))}
                       </div>
                     </div>
-                    <h3 className="font-display font-700 text-lg md:text-xl tracking-tight mb-2 group-hover:text-accent transition-colors duration-400 leading-snug">
+                    <h3 className="font-body font-700 text-lg md:text-xl tracking-tight mb-2 group-hover:text-accent transition-colors duration-400 leading-snug">
                       {post.title[lang]}
                     </h3>
                     <p className="text-ink-muted text-sm leading-relaxed">
@@ -140,7 +140,7 @@ function BlogSection() {
                   className="h-px bg-accent mx-auto mb-5"
                 />
                 <ScrollReveal delay={0.15}>
-                  <p className="font-display font-700 text-xl md:text-2xl text-ink tracking-tight">{t.blog.empty}</p>
+                  <p className="font-body font-700 text-xl md:text-2xl text-ink tracking-tight">{t.blog.empty}</p>
                 </ScrollReveal>
                 <ScrollFadeIn delay={0.3}>
                   <p className="text-ink-muted text-sm max-w-md mx-auto leading-relaxed mt-3">
@@ -203,7 +203,7 @@ function ProductsSection() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <Link to={product.demoLink} className="no-underline">
-                    <h3 className="font-display font-700 text-lg md:text-xl tracking-tight text-ink leading-snug mb-1 hover:text-accent transition-colors duration-300">
+                    <h3 className="font-body font-700 text-lg md:text-xl tracking-tight text-ink leading-snug mb-1 hover:text-accent transition-colors duration-300">
                       {product.name}
                     </h3>
                   </Link>
@@ -298,7 +298,7 @@ function AboutSection() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-display font-700 text-xl md:text-2xl tracking-tight leading-tight">
+                  <h3 className="font-body font-700 text-xl md:text-2xl tracking-tight leading-tight">
                     {t.hero.name}<span className="text-accent">.</span>
                   </h3>
                   <span className="text-xs font-body font-500 text-ink-muted uppercase tracking-widest">

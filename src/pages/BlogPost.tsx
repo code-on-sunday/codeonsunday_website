@@ -41,7 +41,7 @@ export default function BlogPost() {
         <div style={{ maxWidth: '768px', margin: '0 auto', padding: '0 48px' }}>
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-display font-700"
+            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-body font-700"
           >
             <ArrowLeft size={14} />
             {t.blog.backHome}
@@ -65,7 +65,7 @@ export default function BlogPost() {
         >
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-display font-700"
+            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-body font-700"
           >
             <ArrowLeft size={14} />
             {t.blog.backHome}
@@ -73,17 +73,17 @@ export default function BlogPost() {
 
           <article>
             <header className="mb-10">
-              <time className="text-ink-light text-xs font-display font-700 uppercase tracking-wider">
+              <time className="text-ink-light text-xs font-body font-700 uppercase tracking-wider">
                 {post.date}
               </time>
-              <h1 className="font-display font-700 text-3xl md:text-4xl tracking-tight mt-2 mb-4">
+              <h1 className="font-body font-700 text-3xl md:text-4xl tracking-tight mt-2 mb-4">
                 {post.title[lang]}
               </h1>
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-ink-light text-[10px] font-display font-700 uppercase tracking-wider border border-border-light"
+                    className="text-ink-light text-[10px] font-body font-700 uppercase tracking-wider border border-border-light"
                     style={{ padding: '2px 8px' }}
                   >
                     {tag}

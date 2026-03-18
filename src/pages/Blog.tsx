@@ -25,7 +25,7 @@ export default function Blog() {
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-display font-700"
+            className="inline-flex items-center gap-2 text-ink-muted text-sm no-underline hover:text-accent transition-colors mb-12 font-body font-700"
           >
             <ArrowLeft size={14} />
             {t.blog.backHome}
@@ -34,7 +34,7 @@ export default function Blog() {
           <div className="mb-16">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-0.5 bg-accent" />
-              <span className="font-display font-700 text-xs uppercase tracking-[0.2em] text-accent">
+              <span className="font-body font-700 text-xs uppercase tracking-[0.2em] text-accent">
                 {t.blog.subtitle}
               </span>
             </div>
@@ -62,7 +62,7 @@ export default function Blog() {
                     <time className="text-ink-light text-xs font-display font-700 uppercase tracking-wider">
                       {post.date}
                     </time>
-                    <h3 className="font-display font-700 text-lg mt-2 mb-2 tracking-tight group-hover:text-accent transition-colors">
+                    <h3 className="font-body font-700 text-lg mt-2 mb-2 tracking-tight group-hover:text-accent transition-colors">
                       {post.title[lang]}
                     </h3>
                     <p className="text-ink-muted text-sm leading-relaxed">
@@ -72,7 +72,7 @@ export default function Blog() {
                       {post.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="text-ink-light text-[10px] font-display font-700 uppercase tracking-wider border border-border-light"
+                          className="text-ink-light text-[10px] font-body font-700 uppercase tracking-wider border border-border-light"
                           style={{ padding: '2px 8px' }}
                         >
                           {tag}
@@ -94,7 +94,7 @@ export default function Blog() {
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <span className="font-display font-700 text-sm text-ink-muted">
+                <span className="font-body font-700 text-sm text-ink-muted">
                   {t.blog.page} {page} / {totalPages}
                 </span>
                 <button
@@ -114,7 +114,7 @@ export default function Blog() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="border border-border border-dashed py-20 text-center"
           >
-            <p className="font-display font-700 text-xl text-ink mb-2">{t.blog.empty}</p>
+            <p className="font-body font-700 text-xl text-ink mb-2">{t.blog.empty}</p>
             <p className="text-ink-muted text-sm max-w-md mx-auto">{t.blog.emptySubtitle}</p>
           </motion.div>
         )}

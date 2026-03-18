@@ -21,7 +21,7 @@ export default function SectionHeading({ title, subtitle, number }: Props) {
       <div className="relative">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-8 h-0.5 bg-accent" />
-          <span className="font-display font-700 text-xs uppercase tracking-[0.2em] text-accent">
+          <span className="font-body font-700 text-xs uppercase tracking-[0.2em] text-accent">
             {subtitle}
           </span>
         </div>
