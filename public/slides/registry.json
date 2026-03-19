@@ -44,5 +44,18 @@
     "description": "",
     "date": "2026-03-18",
     "tags": []
+  },
+  {
+    "slug": "ai-code-vs-profit",
+    "title": "AI viết nhiều code hơn — nhưng có tạo ra lợi nhuận?",
+    "description": "Phân tích dữ liệu thực từ doanh nghiệp 2025–2026 về hiệu quả thực sự của AI trong phát triển phần mềm",
+    "date": "2026-03-20",
+    "tags": [
+      "ai",
+      "software-engineering",
+      "data",
+      "productivity",
+      "vietnamese"
+    ]
   }
 ]
