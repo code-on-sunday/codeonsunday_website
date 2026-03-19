@@ -66,18 +66,7 @@ export default function Slides() {
                 {deck.description && (
                   <p className="text-ink-muted text-sm mb-3 line-clamp-2">{deck.description}</p>
                 )}
-                <div className="flex items-center justify-between">
-                  <time className="text-ink-light text-xs">{deck.date}</time>
-                  {deck.tags.length > 0 && (
-                    <div className="flex gap-1.5">
-                      {deck.tags.map(tag => (
-                        <span key={tag} className="text-xs text-ink-muted bg-surface-alt px-2 py-0.5 rounded">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <time className="text-ink-light text-xs">{deck.date}</time>
               </div>
             </motion.a>
           ))}
