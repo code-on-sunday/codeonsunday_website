@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 import fs from 'fs'
 import path from 'path'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 function servePublicSubdirs(): import('vite').Plugin {
   return {
     name: 'serve-public-subdirs',
@@ -24,5 +26,5 @@ function servePublicSubdirs(): import('vite').Plugin {
 }
 
 export default defineConfig({
-  plugins: [servePublicSubdirs(), react(), tailwindcss()],
+  plugins: [servePublicSubdirs(), react(), tailwindcss(), cloudflare()],
 })
