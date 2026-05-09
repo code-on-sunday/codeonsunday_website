@@ -1,0 +1,7 @@
+{
+  "name": "codeonsunday-website",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static site — no build step'"
+  }
+}
