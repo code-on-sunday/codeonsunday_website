@@ -61,16 +61,29 @@
   // below — uncomment a line and point it at the photo path/URL.
   const IMAGES = {};
   const IMG_SOURCES = {
-    'trung':       'photos/trung.png',
-    'river':       'photos/river.jpg',
+    'trung':       'photos/trung.webp',
+    'river':       'photos/river.webp',
     'hanoi':       'photos/hanoi.webp',
     'vietnam':     'photos/vietnam.webp',
-    'badminton':   'photos/badminton.png',
-    'bad':         'photos/bad.jpg',
+    'badminton':   'photos/badminton.webp',
+    'bad':         'photos/bad.webp',
     'good':        'photos/good.jpg',
-    'not-help':    'photos/not-help.png',
-    'this-help':   'photos/this-help.png',
-    'friends':     'photos/say-hi.png',
+    'not-help':    'photos/not-help.webp',
+    'this-help':   'photos/this-help.webp',
+    'friends':     'photos/say-hi.webp',
+    'snes':           'photos/logos/snes.svg',
+    'gameboy':        'photos/logos/gameboy.svg',
+    'little-fighter': 'photos/logos/little-fighter.png',
+    'worms':          'photos/logos/worms.png',
+    'internet':       'photos/logos/internet.svg',
+    'yahoo':          'photos/logos/yahoo.svg',
+    'facebook':       'photos/logos/facebook.svg',
+    'gunbound':       'photos/logos/gunbound.jpg',
+    'diablo2':        'photos/logos/diablo2.png',
+    'powerpoint':     'photos/logos/powerpoint.svg',
+    'pascal':         'photos/logos/pascal.jpg',
+    'cpp':            'photos/logos/cpp.svg',
+    'warcraft-ft':    'photos/logos/warcraft-ft.jpg',
   };
   function loadImage(key, url) {
     const img = new Image();
@@ -403,6 +416,40 @@
     }
     p.restore();
   }
+  // White card with a logo image inside — used on the nostalgia layer.
+  // Image is rendered "contain" so wordmarks and box arts both fit.
+  function paintLogoChip(p, x, y, size, key, rotate = 0) {
+    p.save();
+    p.translate(x, y);
+    p.rotate(rotate);
+    p.fillStyle = 'rgba(20,10,40,0.30)';
+    p.fillRect(-size / 2 + size * 0.04, -size / 2 + size * 0.05, size, size);
+    p.fillStyle = '#fff';
+    p.fillRect(-size / 2, -size / 2, size, size);
+    const pad = size * 0.10;
+    const ix = -size / 2 + pad;
+    const iy = -size / 2 + pad;
+    const iw = size - pad * 2;
+    const ih = size - pad * 2;
+    const img = IMAGES[key];
+    if (img) {
+      const imgAR = img.width / img.height;
+      const boxAR = iw / ih;
+      let dw, dh, dx, dy;
+      if (imgAR > boxAR) {
+        dw = iw; dh = iw / imgAR;
+        dx = ix; dy = iy + (ih - dh) / 2;
+      } else {
+        dh = ih; dw = ih * imgAR;
+        dx = ix + (iw - dw) / 2; dy = iy;
+      }
+      p.drawImage(img, dx, dy, dw, dh);
+    } else {
+      p.fillStyle = '#eee';
+      p.fillRect(ix, iy, iw, ih);
+    }
+    p.restore();
+  }
   // Sticky-note chip with shadow — used on the nostalgia layer.
   function paintChip(p, text, x, y, size, fill, color, rotate = 0) {
     p.save();
@@ -556,28 +603,45 @@
         paintBackground(p, w, h, '#ffd1ef', '#c084fc', '#7c3aed');
         paintSparkles(p, w, h, 50, 0.5);
 
-        paintGradText(p, "I'm 32", w / 2, h * 0.13, w * 0.13, '#fffae3', '#fde68a', -0.02);
-        paintText(p, 'and I grew up with —', w / 2, h * 0.24, w * 0.040,
-          'rgba(255,255,255,0.85)', { style: 'italic' });
-
-        // scattered chips, zig-zag rows
-        const chips = [
-          { t: 'SNES games',             c: ['#fde68a', '#3d2c4f'], r: -0.10, x: 0.18, y: 0.36, s: 0.034 },
-          { t: 'Game Boy',               c: ['#a7f3d0', '#1f3b3b'], r:  0.08, x: 0.42, y: 0.34, s: 0.034 },
-          { t: 'Little Fighter',         c: ['#fda4af', '#3d2c4f'], r: -0.05, x: 0.66, y: 0.36, s: 0.034 },
-          { t: 'Worms',                  c: ['#fbbf24', '#3d2c4f'], r:  0.12, x: 0.86, y: 0.34, s: 0.038 },
-          { t: 'the early internet',     c: ['#fbcfe8', '#3d2c4f'], r: -0.04, x: 0.20, y: 0.46, s: 0.030 },
-          { t: 'Yahoo',                  c: ['#c4b5fd', '#1f1147'], r: -0.08, x: 0.42, y: 0.46, s: 0.034 },
-          { t: 'Facebook',               c: ['#93c5fd', '#1e3a8a'], r:  0.05, x: 0.62, y: 0.46, s: 0.034 },
-          { t: 'Gunbound',               c: ['#fda4af', '#3d2c4f'], r: -0.10, x: 0.84, y: 0.46, s: 0.038 },
-          { t: 'Diablo 2',               c: ['#fca5a5', '#3d2c4f'], r:  0.06, x: 0.18, y: 0.58, s: 0.038 },
-          { t: 'PowerPoint',             c: ['#fed7aa', '#3d2c4f'], r: -0.04, x: 0.42, y: 0.60, s: 0.034 },
-          { t: 'Pascal',                 c: ['#bef264', '#1f3b3b'], r:  0.10, x: 0.62, y: 0.58, s: 0.034 },
-          { t: 'C++',                    c: ['#fde68a', '#3d2c4f'], r: -0.07, x: 0.84, y: 0.60, s: 0.040 },
-          { t: 'Warcraft Frozen Throne', c: ['#a5f3fc', '#1f3b3b'], r:  0.04, x: 0.50, y: 0.74, s: 0.034 },
+        const logos = [
+          'snes', 'gameboy', 'little-fighter', 'worms',
+          'internet', 'yahoo', 'facebook', 'gunbound',
+          'diablo2', 'powerpoint', 'pascal', 'cpp',
+          'warcraft-ft',
         ];
-        for (const it of chips) {
-          paintChip(p, it.t, w * it.x, h * it.y, w * it.s, it.c[0], it.c[1], it.r);
+        // pseudo-random rotation per index for that scattered-sticker feel
+        const rot = (i) => (((i * 31 + 17) % 21) - 10) * 0.012;
+
+        if (h > w) {
+          paintGradText(p, "I'm 32", w / 2, h * 0.06, w * 0.13,
+            '#fffae3', '#fde68a', -0.02);
+          paintText(p, 'and I grew up with —', w / 2, h * 0.13, w * 0.040,
+            'rgba(255,255,255,0.85)', { style: 'italic' });
+
+          // 3 cols × 4 rows + 1 centered = 13
+          const xs = [0.20, 0.50, 0.80];
+          const ys = [0.27, 0.42, 0.57, 0.72];
+          const size = w * 0.24;
+          for (let i = 0; i < 12; i++) {
+            paintLogoChip(p, w * xs[i % 3], h * ys[Math.floor(i / 3)], size,
+              logos[i], rot(i));
+          }
+          paintLogoChip(p, w * 0.50, h * 0.87, size, logos[12], rot(12));
+        } else {
+          paintGradText(p, "I'm 32", w / 2, h * 0.13, w * 0.13,
+            '#fffae3', '#fde68a', -0.02);
+          paintText(p, 'and I grew up with —', w / 2, h * 0.24, w * 0.040,
+            'rgba(255,255,255,0.85)', { style: 'italic' });
+
+          // 4 cols × 3 rows + 1 centered = 13
+          const xs = [0.16, 0.39, 0.62, 0.85];
+          const ys = [0.42, 0.58, 0.74];
+          const size = w * 0.13;
+          for (let i = 0; i < 12; i++) {
+            paintLogoChip(p, w * xs[i % 4], h * ys[Math.floor(i / 4)], size,
+              logos[i], rot(i));
+          }
+          paintLogoChip(p, w * 0.50, h * 0.91, size, logos[12], rot(12));
         }
       }
     },
