@@ -1,43 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>Trung — tear to read</title>
-<style>
-  :root { color-scheme: dark; }
-  html, body {
-    margin: 0; padding: 0; height: 100%; width: 100%;
-    background: radial-gradient(circle at 50% 30%, #1a1f2e 0%, #060810 70%);
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-    color: #e6ecff;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-    overscroll-behavior: none;
-    touch-action: none;
-  }
-  canvas {
-    display: block;
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-  }
-  /* gl canvas sits in front of the 2D canvas — torn holes in the cloth
-     reveal the 2D canvas behind, which paints the *next* page so the next
-     layer peeks through before the user finishes ripping the current one. */
-  #c  { z-index: 1; }
-  #gl { z-index: 2; }
-</style>
-</head>
-<body>
-<canvas id="c"></canvas>
-<canvas id="gl"></canvas>
-
-<script>
 (() => {
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
@@ -1269,6 +1229,3 @@
   resize();
   requestAnimationFrame(frame);
 })();
-</script>
-</body>
-</html>
