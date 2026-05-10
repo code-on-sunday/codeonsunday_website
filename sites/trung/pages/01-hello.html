@@ -6,14 +6,37 @@
 <link rel="stylesheet" href="../assets/style.css" />
 <style>
   body { background: linear-gradient(180deg, #ffd6a5 0%, #ffadad 50%, #bdb2ff 100%); }
-  .hello { font-size: 18vw; font-weight: 700; font-style: italic;
-           background: linear-gradient(90deg, #ff5e8a, #ff9a3c);
-           -webkit-background-clip: text; background-clip: text;
-           -webkit-text-fill-color: transparent;
-           transform: rotate(-2deg); }
+  .hello { position: absolute; left: 10vw; top: 7vh; font-size: 10vw;
+           font-style: italic; transform: rotate(-4deg); color: #3d2c4f; }
+  .polaroid-me { position: absolute; left: 50%; top: 36vh;
+                 width: 66vw; transform: translate(-50%, -50%) rotate(-2deg); }
+  .my-name { position: absolute; left: 50%; top: 66vh; transform: translateX(-50%);
+             font-size: 7.5vw; color: #5b3a8a; }
+  .name-grad { position: absolute; left: 50%; top: 78vh;
+               transform: translate(-50%, -50%) rotate(-2deg);
+               font-size: 30vw;
+               --from: #ff5e8a; --to: #ff9a3c; }
+  .underline { position: absolute; left: 0; right: 0; top: 86vh; }
+
+  @media (orientation: landscape) {
+    .hello { font-size: 6vw; left: 10vw; top: 18vh; }
+    .polaroid-me { left: 78vw; top: 30vh; width: 22vw; transform: translate(-50%, -50%) rotate(4deg); }
+    .my-name { left: 40vw; top: 40vh; font-size: 5.5vw; }
+    .name-grad { left: 40vw; top: 58vh; font-size: 20vw; }
+    .underline { left: 16vw; right: 36vw; top: 70vh; }
+  }
 </style>
 </head>
 <body>
-  <div class="page"><div class="hello">Trung</div></div>
+  <div class="page sparkles">
+    <div class="hello">hello,</div>
+    <figure class="polaroid polaroid-me">
+      <img src="../assets/photos/trung.webp" alt="Trung" />
+      <figcaption class="caption">me</figcaption>
+    </figure>
+    <div class="my-name">my name is</div>
+    <div class="grad name-grad">Trung</div>
+    <div class="wavy underline"></div>
+  </div>
 </body>
 </html>
