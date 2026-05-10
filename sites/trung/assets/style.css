@@ -1,0 +1,13 @@
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; width: 100vw; height: 100vh;
+  overflow: hidden;
+  font-family: "Marker Felt", "Comic Sans MS", "Bradley Hand", "Chalkboard SE", cursive;
+  -webkit-font-smoothing: antialiased;
+  color: #3d2c4f;
+}
+.page {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
