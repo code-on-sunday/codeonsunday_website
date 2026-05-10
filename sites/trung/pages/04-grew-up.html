@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  body { background: linear-gradient(180deg, #ffd1ef 0%, #c084fc 50%, #7c3aed 100%); color: #fff; }
+  .age   { position: absolute; left: 50%; top: 6vh; transform: translate(-50%,-50%) rotate(-1deg);
+           font-size: 13vw; --from: #fffae3; --to: #fde68a; }
+  .lead  { position: absolute; left: 50%; top: 13vh; transform: translateX(-50%);
+           font-style: italic; font-size: 4vw; opacity: .85; }
+
+  .grid { position: absolute; inset: 18vh 5vw 5vh 5vw;
+          display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw;
+          align-items: center; justify-items: center; }
+  .grid .logo-chip { width: 24vw; height: 24vw; }
+  .grid > :nth-child(13) { grid-column: 1 / -1; }
+  .grid > :nth-child(odd)  { transform: rotate(-2deg); }
+  .grid > :nth-child(even) { transform: rotate( 2deg); }
+
+  @media (orientation: landscape) {
+    .age  { font-size: 13vw; top: 13vh; }
+    .lead { font-size: 3vw; top: 24vh; }
+    .grid { inset: 32vh 4vw 4vh 4vw; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; }
+    .grid .logo-chip { width: 13vw; height: 13vw; }
+    .grid > :nth-child(13) { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+  <div class="page sparkles">
+    <div class="grad age">I'm 32</div>
+    <div class="lead">and I grew up with —</div>
+    <div class="grid">
+      <div class="logo-chip"><img src="../assets/photos/logos/snes.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/gameboy.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/little-fighter.png" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/worms.png" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/internet.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/yahoo.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/facebook.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/gunbound.jpg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/diablo2.png" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/powerpoint.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/pascal.jpg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/cpp.svg" alt=""></div>
+      <div class="logo-chip"><img src="../assets/photos/logos/warcraft-ft.jpg" alt=""></div>
+    </div>
+  </div>
+</body>
+</html>
