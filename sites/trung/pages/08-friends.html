@@ -5,15 +5,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="stylesheet" href="../assets/style.css" />
 <style>
-  body { background: linear-gradient(180deg, #ffd6a5 0%, #ffadad 50%, #bdb2ff 100%); }
-  h1 { font-size: 12vw; margin: 0; }
-  p  { font-size: 4vw; opacity: .8; }
+  body { background: linear-gradient(180deg, #ffd6a5 0%, #ffadad 50%, #bdb2ff 100%); color: #3d2c4f; }
+  .lead   { position: absolute; left: 50%; top: 10vh; transform: translateX(-50%); font-style: italic; font-size: 6vw; }
+  .friend { position: absolute; left: 50%; top: 22vh; transform: translate(-50%,-50%) rotate(-2deg);
+            font-size: 16vw; --from: #ff5e8a; --to: #ff9a3c; }
+  .underline { position: absolute; left: 0; right: 0; top: 30vh; }
+  .pic    { position: absolute; left: 50%; top: 66vh; transform: translate(-50%, -50%) rotate(-2deg); width: 74vw; }
+
+  @media (orientation: landscape) {
+    .lead      { left: 28vw; top: 34vh; transform: none; text-align: left; font-size: 4.4vw; }
+    .friend    { left: 28vw; top: 50vh; transform: rotate(-2deg); transform-origin: left center; font-size: 9vw; }
+    .underline { left: 14vw; right: 56vw; top: 62vh; }
+    .pic       { left: 74vw; top: 50vh; width: 32vw; }
+  }
 </style>
 </head>
 <body>
-  <div class="page" style="flex-direction:column; gap:1rem;">
-    <h1>say hi</h1>
-    <p>connect with me</p>
+  <div class="page sparkles">
+    <div class="lead">connect with me</div>
+    <div class="grad friend">&amp; be friends</div>
+    <div class="wavy underline"></div>
+    <figure class="polaroid pic">
+      <img src="../assets/photos/say-hi.webp" alt="" />
+      <figcaption class="caption">say hi</figcaption>
+    </figure>
   </div>
 </body>
 </html>
