@@ -62,6 +62,10 @@ function clothTear() {
 export default defineConfig({
   publicDir: false,
   plugins: [clothTear()],
+  server: {
+    host: true,
+    allowedHosts: true,
+  },
   build: {
     target: 'es2020',
     minify: 'terser',
