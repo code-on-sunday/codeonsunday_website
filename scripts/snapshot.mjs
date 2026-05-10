@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { snapshotBasename } from '../src/lib/snapshot-paths.js';
@@ -28,7 +28,7 @@ function startStaticServer(root) {
       try {
         const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
         const filePath = path.join(root, urlPath);
-        if (!filePath.startsWith(root)) { res.writeHead(403); res.end(); return; }
+        if (!filePath.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
         const data = await readFile(filePath);
         const ext = path.extname(filePath).toLowerCase();
         res.writeHead(200, { 'content-type': MIME[ext] || 'application/octet-stream' });
@@ -66,27 +66,28 @@ async function main() {
   const { server, port } = await startStaticServer(REPO_ROOT);
   console.log(`static server: http://127.0.0.1:${port}`);
   const browser = await chromium.launch();
-
-  const nonFinal = manifest.pages.filter((p) => !p.final);
-  for (const page of nonFinal) {
-    const base = snapshotBasename(page.html);
-    for (const bp of BREAKPOINTS) {
-      const ctx = await browser.newContext({
-        viewport: { width: bp.width, height: bp.height },
-        deviceScaleFactor: bp.dpr,
-      });
-      const tab = await ctx.newPage();
-      const url = `http://127.0.0.1:${port}/sites/${siteName}/${page.html}`;
-      console.log(`snapshot ${siteName}/${base} @ ${bp.name} <- ${url}`);
-      await tab.goto(url, { waitUntil: 'networkidle' });
-      const out = path.join(snapshotsDir, `${base}.${bp.name}.png`);
-      await tab.screenshot({ path: out, fullPage: false, omitBackground: false });
-      await ctx.close();
+  try {
+    const nonFinal = manifest.pages.filter((p) => !p.final);
+    for (const page of nonFinal) {
+      const base = snapshotBasename(page.html);
+      for (const bp of BREAKPOINTS) {
+        const ctx = await browser.newContext({
+          viewport: { width: bp.width, height: bp.height },
+          deviceScaleFactor: bp.dpr,
+        });
+        const tab = await ctx.newPage();
+        const url = `http://127.0.0.1:${port}/sites/${siteName}/${page.html}`;
+        console.log(`snapshot ${siteName}/${base} @ ${bp.name} <- ${url}`);
+        await tab.goto(url, { waitUntil: 'networkidle' });
+        const out = path.join(snapshotsDir, `${base}.${bp.name}.png`);
+        await tab.screenshot({ path: out, fullPage: false, omitBackground: false });
+        await ctx.close();
+      }
     }
+  } finally {
+    await browser.close();
+    server.close();
   }
-
-  await browser.close();
-  server.close();
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });
