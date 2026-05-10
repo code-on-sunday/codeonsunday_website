@@ -64,7 +64,13 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     }));
   }
 
-  pages = await loadPagesForOrientation(currentOrientation());
+  try {
+    pages = await loadPagesForOrientation(currentOrientation());
+  } catch (err) {
+    console.error(err);
+    show404();
+    return;
+  }
   let pagesOrientation = currentOrientation();
 
   // ---------- WebGL renderer for the cloth mesh ----------
