@@ -688,19 +688,24 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   glCanvas.addEventListener('contextmenu', e => e.preventDefault());
 
   // ---------- resize ----------
-  function resize() {
+  async function resize() {
     W = window.innerWidth;
     H = window.innerHeight;
     const pw = Math.floor(W * DPR);
     const ph = Math.floor(H * DPR);
-    canvas.width  = pw; canvas.height = ph;
-    canvas.style.width  = W + 'px'; canvas.style.height = H + 'px';
-    glCanvas.width  = pw; glCanvas.height = ph;
-    glCanvas.style.width  = W + 'px'; glCanvas.style.height = H + 'px';
-    if (staticMode) {
-      // iframe scales itself via inset:0;width:100%;height:100%
-      return;
+    canvas.width = pw; canvas.height = ph;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    glCanvas.width = pw; glCanvas.height = ph;
+    glCanvas.style.width = W + 'px'; glCanvas.style.height = H + 'px';
+
+    const newOrientation = currentOrientation();
+    if (newOrientation !== pagesOrientation) {
+      pagesOrientation = newOrientation;
+      try { pages = await loadPagesForOrientation(newOrientation); }
+      catch (err) { console.error('orientation reload failed', err); }
     }
+
+    if (staticMode) return;
     buildCloth();
     buildLinkCounts();
     originalLinks = links.length;
