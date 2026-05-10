@@ -1,13 +1,12 @@
-(() => {
+import { resolveSiteName, validateManifest } from './lib/route.js';
+import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
+
+(async () => {
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
   const isCoarse = matchMedia('(pointer: coarse)').matches;
   const DPR = Math.min(window.devicePixelRatio || 1, isCoarse ? 1.5 : 2);
 
-  // The "page" is painted once into an offscreen canvas and uploaded as a
-  // single texture for the cloth mesh. The "bgPage" is painted to a second
-  // offscreen canvas and drawn behind the cloth on the 2D layer — when cloth
-  // tears, the next page peeks through the holes.
   const PAGE_SCALE = 2;
   const pageCanvas = document.createElement('canvas');
   const pageCtx = pageCanvas.getContext('2d');
@@ -15,43 +14,58 @@
   const bgCtx = bgCanvas.getContext('2d');
   let bgReady = false;
 
-  // ---------- image registry ----------
-  // Pages reference photos by key. Until an image loads, a labeled placeholder
-  // is drawn so the layout always renders. Wire real URLs into IMG_SOURCES
-  // below — uncomment a line and point it at the photo path/URL.
-  const IMAGES = {};
-  const IMG_SOURCES = {
-    'trung':       'photos/trung.webp',
-    'river':       'photos/river.webp',
-    'hanoi':       'photos/hanoi.webp',
-    'vietnam':     'photos/vietnam.webp',
-    'badminton':   'photos/badminton.webp',
-    'bad':         'photos/bad.webp',
-    'good':        'photos/good.jpg',
-    'not-help':    'photos/not-help.webp',
-    'this-help':   'photos/this-help.webp',
-    'friends':     'photos/say-hi.webp',
-    'snes':           'photos/logos/snes.svg',
-    'gameboy':        'photos/logos/gameboy.svg',
-    'little-fighter': 'photos/logos/little-fighter.png',
-    'worms':          'photos/logos/worms.png',
-    'internet':       'photos/logos/internet.svg',
-    'yahoo':          'photos/logos/yahoo.svg',
-    'facebook':       'photos/logos/facebook.svg',
-    'gunbound':       'photos/logos/gunbound.jpg',
-    'diablo2':        'photos/logos/diablo2.png',
-    'powerpoint':     'photos/logos/powerpoint.svg',
-    'pascal':         'photos/logos/pascal.jpg',
-    'cpp':            'photos/logos/cpp.svg',
-    'warcraft-ft':    'photos/logos/warcraft-ft.jpg',
-  };
-  function loadImage(key, url) {
-    const img = new Image();
-    img.onload  = () => { IMAGES[key] = img; repaintLayers(); };
-    img.onerror = () => console.warn('image load failed:', key, url);
-    img.src = url;
+  const SITE_NAME = resolveSiteName(location.pathname, 'trung');
+
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`image failed: ${url}`));
+      img.src = url;
+    });
   }
-  for (const k in IMG_SOURCES) loadImage(k, IMG_SOURCES[k]);
+
+  function show404() {
+    document.body.innerHTML = `
+      <div style="position:fixed;inset:0;display:grid;place-items:center;
+                  font:600 16px -apple-system,sans-serif;color:#e6ecff;
+                  background:radial-gradient(circle at 50% 30%,#1a1f2e 0%,#060810 70%);
+                  text-align:center;padding:24px;">
+        <div>
+          <div style="font-size:32px;margin-bottom:12px;">site not found</div>
+          <div style="opacity:.7;">no <code>sites/${SITE_NAME}/manifest.json</code></div>
+        </div>
+      </div>`;
+  }
+
+  let manifest, pages;
+  try {
+    const res = await fetch(`/sites/${SITE_NAME}/manifest.json`);
+    if (!res.ok) throw new Error(`manifest ${res.status}`);
+    manifest = await res.json();
+    validateManifest(manifest);
+  } catch (err) {
+    console.error(err);
+    show404();
+    return;
+  }
+  if (manifest.title) document.title = manifest.title;
+
+  function currentOrientation() {
+    return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+  }
+
+  async function loadPagesForOrientation(orientation) {
+    return Promise.all(manifest.pages.map(async (p) => {
+      if (p.final) return { kind: 'final', html: `/sites/${SITE_NAME}/${p.html}` };
+      const base = snapshotBasename(p.html);
+      const img = await loadImage(snapshotUrl(SITE_NAME, base, orientation));
+      return { kind: 'snapshot', img };
+    }));
+  }
+
+  pages = await loadPagesForOrientation(currentOrientation());
+  let pagesOrientation = currentOrientation();
 
   // ---------- WebGL renderer for the cloth mesh ----------
   const glCanvas = document.getElementById('gl');
@@ -194,538 +208,10 @@
     gl.drawElements(gl.TRIANGLES, idxCount, gl.UNSIGNED_SHORT, 0);
   }
 
-  // ---------- playful paint helpers ----------
-  const PLAYFUL = `"Marker Felt", "Comic Sans MS", "Bradley Hand", "Chalkboard SE", cursive`;
-
-  function paintBackground(p, w, h, top, mid, bot) {
-    const bg = p.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, top);
-    bg.addColorStop(0.5, mid);
-    bg.addColorStop(1, bot);
-    p.fillStyle = bg;
-    p.fillRect(0, 0, w, h);
-  }
-  function paintSparkles(p, w, h, count = 36, alpha = 0.55) {
-    p.fillStyle = `rgba(255,255,255,${alpha})`;
-    for (let i = 0; i < count; i++) {
-      const u = ((i * 73 + 19) % 100) / 100;
-      const v = ((i * 41 + 7)  % 100) / 100;
-      const r = 2 + (i % 4) * 1.5;
-      p.beginPath();
-      p.arc(u * w, v * h, r, 0, Math.PI * 2);
-      p.fill();
-    }
-  }
-  function paintWavy(p, x1, x2, y, color, lw, amp, cycles = 4) {
-    p.strokeStyle = color;
-    p.lineWidth = lw;
-    p.lineCap = 'round';
-    p.beginPath();
-    for (let i = 0; i <= 80; i++) {
-      const t = i / 80;
-      const ux = x1 + (x2 - x1) * t;
-      const wob = Math.sin(t * Math.PI * cycles) * amp;
-      if (i === 0) p.moveTo(ux, y + wob);
-      else p.lineTo(ux, y + wob);
-    }
-    p.stroke();
-  }
-  function paintGradText(p, text, x, y, size, fromColor, toColor, rotate = 0) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(rotate);
-    p.font = `bold italic ${Math.round(size)}px ${PLAYFUL}`;
-    p.textAlign = 'center';
-    p.textBaseline = 'middle';
-    p.fillStyle = 'rgba(40,20,60,0.28)';
-    p.fillText(text, size * 0.05, size * 0.05);
-    const tg = p.createLinearGradient(-size * 1.5, 0, size * 1.5, 0);
-    tg.addColorStop(0, fromColor);
-    tg.addColorStop(1, toColor);
-    p.fillStyle = tg;
-    p.fillText(text, 0, 0);
-    p.restore();
-  }
-  function paintText(p, text, x, y, size, color, opts = {}) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(opts.rotate || 0);
-    p.fillStyle = color;
-    const style = `${opts.style || ''} ${opts.weight || ''} ${Math.round(size)}px ${PLAYFUL}`.trim();
-    p.font = style.replace(/  +/g, ' ');
-    p.textAlign = opts.align || 'center';
-    p.textBaseline = opts.baseline || 'middle';
-    p.fillText(text, 0, 0);
-    p.restore();
-  }
-  // Polaroid-style photo card: shadow, off-white frame, photo (or labeled
-  // placeholder if image not yet loaded), caption strip below.
-  function paintPolaroid(p, x, y, w, h, label, key, rotate = 0) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(rotate);
-    p.fillStyle = 'rgba(40,20,60,0.30)';
-    p.fillRect(-w / 2 + w * 0.03, -h / 2 + h * 0.04, w, h);
-    p.fillStyle = '#fff8ef';
-    p.fillRect(-w / 2, -h / 2, w, h);
-    const pad = w * 0.05;
-    const px = -w / 2 + pad;
-    const py = -h / 2 + pad;
-    const pw = w - pad * 2;
-    const ph = h - pad - w * 0.18;
-    const img = IMAGES[key];
-    if (img) {
-      p.save();
-      p.beginPath();
-      p.rect(px, py, pw, ph);
-      p.clip();
-      const imgAR = img.width / img.height;
-      const boxAR = pw / ph;
-      let dw, dh, dx, dy;
-      if (imgAR > boxAR) {
-        dh = ph; dw = ph * imgAR;
-        dx = px - (dw - pw) / 2; dy = py;
-      } else {
-        dw = pw; dh = pw / imgAR;
-        dx = px; dy = py - (dh - ph) / 2;
-      }
-      p.drawImage(img, dx, dy, dw, dh);
-      p.restore();
-    } else {
-      const grad = p.createLinearGradient(px, py, px + pw, py + ph);
-      grad.addColorStop(0, '#ffe8d6');
-      grad.addColorStop(1, '#cdb4db');
-      p.fillStyle = grad;
-      p.fillRect(px, py, pw, ph);
-      p.strokeStyle = 'rgba(60,30,80,0.45)';
-      p.setLineDash([6, 4]);
-      p.lineWidth = 1.5;
-      p.strokeRect(px, py, pw, ph);
-      p.setLineDash([]);
-      p.fillStyle = 'rgba(60,30,80,0.55)';
-      p.font = `${Math.round(w * 0.075)}px ${PLAYFUL}`;
-      p.textAlign = 'center';
-      p.textBaseline = 'middle';
-      p.fillText('photo:', px + pw / 2, py + ph / 2 - w * 0.04);
-      p.fillText(label, px + pw / 2, py + ph / 2 + w * 0.05);
-    }
-    p.fillStyle = '#3d2c4f';
-    p.font = `italic ${Math.round(w * 0.072)}px ${PLAYFUL}`;
-    p.textAlign = 'center';
-    p.textBaseline = 'middle';
-    p.fillText(label, 0, h / 2 - w * 0.085);
-    p.restore();
-  }
-  // Dark social-card frame with the image rendered "contain" (no crop), then
-  // an optional X or check mark drawn on top.
-  function paintTweet(p, x, y, w, h, key, rotate, mark) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(rotate || 0);
-    p.fillStyle = 'rgba(0,0,0,0.40)';
-    p.fillRect(-w / 2 + w * 0.02, -h / 2 + h * 0.05, w, h);
-    p.fillStyle = '#000';
-    p.fillRect(-w / 2, -h / 2, w, h);
-    const pad = w * 0.012;
-    const px = -w / 2 + pad;
-    const py = -h / 2 + pad;
-    const pw = w - pad * 2;
-    const ph = h - pad * 2;
-    const img = IMAGES[key];
-    if (img) {
-      const imgAR = img.width / img.height;
-      const boxAR = pw / ph;
-      let dw, dh, dx, dy;
-      if (imgAR > boxAR) {
-        dw = pw; dh = pw / imgAR;
-        dx = px; dy = py + (ph - dh) / 2;
-      } else {
-        dh = ph; dw = ph * imgAR;
-        dx = px + (pw - dw) / 2; dy = py;
-      }
-      p.drawImage(img, dx, dy, dw, dh);
-    } else {
-      p.fillStyle = '#1a1a1a';
-      p.fillRect(px, py, pw, ph);
-      p.fillStyle = 'rgba(255,255,255,0.4)';
-      p.font = `${Math.round(Math.min(w, h) * 0.18)}px ${PLAYFUL}`;
-      p.textAlign = 'center';
-      p.textBaseline = 'middle';
-      p.fillText(key, 0, 0);
-    }
-    if (mark === 'x') {
-      const ms = Math.min(w, h) * 0.65;
-      p.strokeStyle = 'rgba(220,38,38,0.95)';
-      p.lineWidth = ms * 0.20;
-      p.lineCap = 'round';
-      p.beginPath();
-      p.moveTo(-ms / 2, -ms / 2); p.lineTo(ms / 2, ms / 2);
-      p.moveTo(ms / 2, -ms / 2); p.lineTo(-ms / 2, ms / 2);
-      p.stroke();
-    } else if (mark === 'check') {
-      const ms = Math.min(w, h) * 0.55;
-      p.strokeStyle = 'rgba(34,197,94,0.95)';
-      p.lineWidth = ms * 0.18;
-      p.lineCap = 'round';
-      p.lineJoin = 'round';
-      p.beginPath();
-      p.moveTo(-ms * 0.45, 0);
-      p.lineTo(-ms * 0.10, ms * 0.36);
-      p.lineTo(ms * 0.50, -ms * 0.40);
-      p.stroke();
-    }
-    p.restore();
-  }
-  // White card with a logo image inside — used on the nostalgia layer.
-  // Image is rendered "contain" so wordmarks and box arts both fit.
-  function paintLogoChip(p, x, y, size, key, rotate = 0) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(rotate);
-    p.fillStyle = 'rgba(20,10,40,0.30)';
-    p.fillRect(-size / 2 + size * 0.04, -size / 2 + size * 0.05, size, size);
-    p.fillStyle = '#fff';
-    p.fillRect(-size / 2, -size / 2, size, size);
-    const pad = size * 0.10;
-    const ix = -size / 2 + pad;
-    const iy = -size / 2 + pad;
-    const iw = size - pad * 2;
-    const ih = size - pad * 2;
-    const img = IMAGES[key];
-    if (img) {
-      const imgAR = img.width / img.height;
-      const boxAR = iw / ih;
-      let dw, dh, dx, dy;
-      if (imgAR > boxAR) {
-        dw = iw; dh = iw / imgAR;
-        dx = ix; dy = iy + (ih - dh) / 2;
-      } else {
-        dh = ih; dw = ih * imgAR;
-        dx = ix + (iw - dw) / 2; dy = iy;
-      }
-      p.drawImage(img, dx, dy, dw, dh);
-    } else {
-      p.fillStyle = '#eee';
-      p.fillRect(ix, iy, iw, ih);
-    }
-    p.restore();
-  }
-  // Sticky-note chip with shadow — used on the nostalgia layer.
-  function paintChip(p, text, x, y, size, fill, color, rotate = 0) {
-    p.save();
-    p.translate(x, y);
-    p.rotate(rotate);
-    p.font = `bold ${Math.round(size)}px ${PLAYFUL}`;
-    p.textAlign = 'center';
-    p.textBaseline = 'middle';
-    const tw = p.measureText(text).width;
-    const padx = size * 0.6, pady = size * 0.45;
-    const bw = tw + padx * 2;
-    const bh = size + pady * 2;
-    p.fillStyle = 'rgba(20,10,40,0.35)';
-    p.fillRect(-bw / 2 + size * 0.07, -bh / 2 + size * 0.07, bw, bh);
-    p.fillStyle = fill;
-    p.fillRect(-bw / 2, -bh / 2, bw, bh);
-    p.fillStyle = color;
-    p.fillText(text, 0, 0);
-    p.restore();
-  }
-
   // ---------- pages ----------
-  // Each page is a paint(ctx, w, h) function rendered into pageCanvas (and into
-  // bgCanvas for the layer one ahead, so it shows through the holes).
-  const PAGES = [
-    // 0 — name + photo
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#ffd6a5', '#ffadad', '#bdb2ff');
-        paintSparkles(p, w, h);
-
-        // Portrait (mobile): photo is the hero — big and centered. Landscape
-        // (desktop): photo sits to the right of the name.
-        if (h > w) {
-          p.save();
-          p.fillStyle = '#3d2c4f';
-          p.font = `italic ${Math.round(w * 0.10)}px ${PLAYFUL}`;
-          p.textAlign = 'left';
-          p.textBaseline = 'middle';
-          p.translate(w * 0.10, h * 0.07);
-          p.rotate(-0.07);
-          p.fillText('hello,', 0, 0);
-          p.restore();
-
-          const cardW = w * 0.66;
-          const cardH = w * 0.78;
-          paintPolaroid(p, w * 0.50, h * 0.36, cardW, cardH, 'me', 'trung', -0.04);
-
-          paintText(p, 'my name is', w * 0.50, h * 0.66, w * 0.075, '#5b3a8a');
-          paintGradText(p, 'Trung', w * 0.50, h * 0.78, w * 0.30, '#ff5e8a', '#ff9a3c', -0.04);
-          paintWavy(p, w * 0.20, w * 0.80, h * 0.86, '#ff5e8a', w * 0.012, w * 0.016);
-        } else {
-          paintPolaroid(p, w * 0.78, h * 0.30, w * 0.22, w * 0.26, 'me', 'trung', 0.08);
-
-          p.save();
-          p.fillStyle = '#3d2c4f';
-          p.font = `italic ${Math.round(w * 0.06)}px ${PLAYFUL}`;
-          p.textAlign = 'left';
-          p.textBaseline = 'middle';
-          p.translate(w * 0.10, h * 0.18);
-          p.rotate(-0.07);
-          p.fillText('hello,', 0, 0);
-          p.restore();
-
-          paintText(p, 'my name is', w * 0.40, h * 0.40, w * 0.055, '#5b3a8a',
-            { align: 'center' });
-
-          paintGradText(p, 'Trung', w * 0.40, h * 0.58, w * 0.20, '#ff5e8a', '#ff9a3c', -0.04);
-
-          paintWavy(p, w * 0.16, w * 0.64, h * 0.70, '#ff5e8a', w * 0.01, w * 0.012);
-        }
-      }
-    },
-    // 1 — Hà Nội, Việt Nam
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#caf0f8', '#90e0ef', '#a4c3b2');
-        paintSparkles(p, w, h, 28, 0.45);
-
-        if (h > w) {
-          paintText(p, "I'm from", w / 2, h * 0.07, w * 0.055, '#1f3b3b', { style: 'italic' });
-          paintGradText(p, 'Hà Nội', w / 2, h * 0.16, w * 0.22, '#ff5e8a', '#e63946', -0.03);
-          paintText(p, 'Việt Nam', w / 2, h * 0.24, w * 0.085, '#1f3b3b',
-            { style: 'italic', weight: 'bold' });
-
-          paintWavy(p, w * 0.20, w * 0.80, h * 0.30, '#1f7a8c', w * 0.010, w * 0.012, 6);
-
-          // Scattered stack of polaroids — each ~50% page width, overlapping.
-          const pw = w * 0.50, ph = w * 0.58;
-          paintPolaroid(p, w * 0.30, h * 0.50, pw, ph, 'red river', 'river',  -0.12);
-          paintPolaroid(p, w * 0.66, h * 0.62, pw, ph, 'Hanoi',     'hanoi',   0.07);
-          paintPolaroid(p, w * 0.42, h * 0.78, pw, ph, 'việt nam',  'vietnam',-0.05);
-        } else {
-          paintText(p, "I'm from", w / 2, h * 0.10, w * 0.04, '#1f3b3b', { style: 'italic' });
-          paintGradText(p, 'Hà Nội', w / 2, h * 0.22, w * 0.16, '#ff5e8a', '#e63946', -0.03);
-          paintText(p, 'Việt Nam', w / 2, h * 0.32, w * 0.06, '#1f3b3b',
-            { style: 'italic', weight: 'bold' });
-
-          paintWavy(p, w * 0.20, w * 0.80, h * 0.40, '#1f7a8c', w * 0.008, w * 0.009, 6);
-
-          const py = h * 0.62;
-          const pw = w * 0.21, ph = w * 0.25;
-          paintPolaroid(p, w * 0.20, py,            pw, ph, 'red river', 'river',  -0.10);
-          paintPolaroid(p, w * 0.50, py + h * 0.02, pw, ph, 'Hanoi',     'hanoi',   0.04);
-          paintPolaroid(p, w * 0.80, py - h * 0.01, pw, ph, 'việt nam',  'vietnam',-0.06);
-        }
-      }
-    },
-    // 2 — badminton
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#fdf6c8', '#bef264', '#7cd6a8');
-        paintSparkles(p, w, h, 32, 0.5);
-
-        if (h > w) {
-          p.save();
-          p.fillStyle = '#2a4d2c';
-          p.font = `italic ${Math.round(w * 0.055)}px ${PLAYFUL}`;
-          p.textAlign = 'left';
-          p.textBaseline = 'middle';
-          p.translate(w * 0.12, h * 0.06);
-          p.rotate(-0.05);
-          p.fillText('right now', 0, 0);
-          p.restore();
-
-          paintText(p, "I'm learning to swing a", w / 2, h * 0.16, w * 0.062, '#2a4d2c');
-          paintGradText(p, 'badminton racket', w / 2, h * 0.26, w * 0.110, '#16a34a', '#0ea5e9', 0.02);
-
-          paintPolaroid(p, w * 0.50, h * 0.62, w * 0.78, w * 0.92, 'smash', 'badminton', -0.03);
-        } else {
-          p.save();
-          p.fillStyle = '#2a4d2c';
-          p.font = `italic ${Math.round(w * 0.04)}px ${PLAYFUL}`;
-          p.textAlign = 'left';
-          p.textBaseline = 'middle';
-          p.translate(w * 0.16, h * 0.13);
-          p.rotate(-0.05);
-          p.fillText('right now', 0, 0);
-          p.restore();
-
-          paintText(p, "I'm learning to swing a", w / 2, h * 0.23, w * 0.05, '#2a4d2c');
-          paintGradText(p, 'badminton racket', w / 2, h * 0.36, w * 0.105, '#16a34a', '#0ea5e9', 0.02);
-
-          paintPolaroid(p, w * 0.50, h * 0.70, w * 0.30, w * 0.36, 'smash', 'badminton', -0.03);
-        }
-      }
-    },
-    // 3 — i'm 32, i grew up with...
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#ffd1ef', '#c084fc', '#7c3aed');
-        paintSparkles(p, w, h, 50, 0.5);
-
-        const logos = [
-          'snes', 'gameboy', 'little-fighter', 'worms',
-          'internet', 'yahoo', 'facebook', 'gunbound',
-          'diablo2', 'powerpoint', 'pascal', 'cpp',
-          'warcraft-ft',
-        ];
-        // pseudo-random rotation per index for that scattered-sticker feel
-        const rot = (i) => (((i * 31 + 17) % 21) - 10) * 0.012;
-
-        if (h > w) {
-          paintGradText(p, "I'm 32", w / 2, h * 0.06, w * 0.13,
-            '#fffae3', '#fde68a', -0.02);
-          paintText(p, 'and I grew up with —', w / 2, h * 0.13, w * 0.040,
-            'rgba(255,255,255,0.85)', { style: 'italic' });
-
-          // 3 cols × 4 rows + 1 centered = 13
-          const xs = [0.20, 0.50, 0.80];
-          const ys = [0.27, 0.42, 0.57, 0.72];
-          const size = w * 0.24;
-          for (let i = 0; i < 12; i++) {
-            paintLogoChip(p, w * xs[i % 3], h * ys[Math.floor(i / 3)], size,
-              logos[i], rot(i));
-          }
-          paintLogoChip(p, w * 0.50, h * 0.87, size, logos[12], rot(12));
-        } else {
-          paintGradText(p, "I'm 32", w / 2, h * 0.13, w * 0.13,
-            '#fffae3', '#fde68a', -0.02);
-          paintText(p, 'and I grew up with —', w / 2, h * 0.24, w * 0.040,
-            'rgba(255,255,255,0.85)', { style: 'italic' });
-
-          // 4 cols × 3 rows + 1 centered = 13
-          const xs = [0.16, 0.39, 0.62, 0.85];
-          const ys = [0.42, 0.58, 0.74];
-          const size = w * 0.13;
-          for (let i = 0; i < 12; i++) {
-            paintLogoChip(p, w * xs[i % 4], h * ys[Math.floor(i / 4)], size,
-              logos[i], rot(i));
-          }
-          paintLogoChip(p, w * 0.50, h * 0.91, size, logos[12], rot(12));
-        }
-      }
-    },
-    // 4 — side projects (depressive tone)
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#3d3a4d', '#26233a', '#0f0d1a');
-        paintSparkles(p, w, h, 14, 0.18);
-
-        if (h > w) {
-          paintText(p, '+ 4 side projects that made money', w / 2, h * 0.10, w * 0.050, '#cdc4d6');
-          paintText(p, "I never figured out how to keep them going.", w / 2, h * 0.17,
-            w * 0.040, '#9a92a6', { style: 'italic' });
-          paintText(p, 'or how to live on social media.', w / 2, h * 0.22, w * 0.040,
-            '#9a92a6', { style: 'italic' });
-
-          paintPolaroid(p, w * 0.50, h * 0.62, w * 0.78, w * 0.92,
-            'side projects', 'bad', -0.04);
-        } else {
-          const tx = w * 0.28;
-          paintText(p, '+ 4 side projects that made money', tx, h * 0.40, w * 0.038, '#cdc4d6');
-          paintText(p, "I never figured out how to keep them going.", tx, h * 0.50,
-            w * 0.032, '#9a92a6', { style: 'italic' });
-          paintText(p, 'or how to live on social media.', tx, h * 0.56, w * 0.032,
-            '#9a92a6', { style: 'italic' });
-
-          paintPolaroid(p, w * 0.74, h * 0.50, w * 0.32, w * 0.38,
-            'side projects', 'bad', -0.04);
-        }
-      }
-    },
-    // 5 — writing 3 lines (god-light tone)
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#ffffff', '#fff5cc', '#ffd47a');
-        paintSparkles(p, w, h, 60, 0.75);
-
-        if (h > w) {
-          paintText(p, "so I'm trying something else —", w / 2, h * 0.08, w * 0.048, '#3d2410');
-          paintText(p, 'for every thing I do — 3 lines:', w / 2, h * 0.15, w * 0.042,
-            'rgba(60,40,20,0.85)', { style: 'italic' });
-
-          const bullets = ['· what it is', '· how I feel', '· what I learned'];
-          for (let i = 0; i < bullets.length; i++) {
-            paintText(p, bullets[i], w / 2, h * (0.23 + i * 0.05), w * 0.040, '#5b3a1f');
-          }
-
-          paintPolaroid(p, w * 0.50, h * 0.70, w * 0.74, w * 0.86, 'writing', 'good', -0.03);
-        } else {
-          const tx = w * 0.28;
-          paintText(p, "so I'm trying something else —", tx, h * 0.30, w * 0.038, '#3d2410');
-          paintText(p, 'for every thing I do — 3 lines:', tx, h * 0.40, w * 0.032,
-            'rgba(60,40,20,0.85)', { style: 'italic' });
-
-          const bullets = ['· what it is', '· how I feel', '· what I learned'];
-          for (let i = 0; i < bullets.length; i++) {
-            paintText(p, bullets[i], tx, h * (0.50 + i * 0.05), w * 0.032, '#5b3a1f');
-          }
-
-          paintPolaroid(p, w * 0.74, h * 0.50, w * 0.32, w * 0.38, 'writing', 'good', -0.03);
-        }
-      }
-    },
-    // 6 — real people, less noise (two contrasting tweets)
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#d8f3dc', '#b7e4c7', '#95d5b2');
-        paintSparkles(p, w, h, 22, 0.4);
-
-        if (h > w) {
-          paintText(p, 'I stopped reading opinions on social.', w / 2, h * 0.05,
-            w * 0.038, '#1f3b3b');
-          paintText(p, 'I read real people instead —', w / 2, h * 0.10, w * 0.032,
-            '#2a4d2c', { style: 'italic' });
-          paintText(p, 'they move slower than the noise.', w / 2, h * 0.145, w * 0.032,
-            '#2a4d2c', { style: 'italic' });
-          paintText(p, 'calmer. more creative.', w / 2, h * 0.22, w * 0.040,
-            '#1f3b3b', { weight: 'bold' });
-
-          paintTweet(p, w * 0.50, h * 0.36, w * 0.88, w * 0.17, 'not-help',  -0.02, 'x');
-          paintTweet(p, w * 0.50, h * 0.74, w * 0.80, w * 0.49, 'this-help',  0.02, 'check');
-        } else {
-          const tx = w * 0.27;
-          paintText(p, 'I stopped reading opinions on social.', tx, h * 0.32,
-            w * 0.034, '#1f3b3b');
-          paintText(p, 'I read real people instead —', tx, h * 0.42, w * 0.030,
-            '#2a4d2c', { style: 'italic' });
-          paintText(p, 'they move slower than the noise.', tx, h * 0.48, w * 0.030,
-            '#2a4d2c', { style: 'italic' });
-          paintText(p, 'calmer. more creative.', tx, h * 0.62, w * 0.034,
-            '#1f3b3b', { weight: 'bold' });
-
-          paintTweet(p, w * 0.72, h * 0.30, w * 0.42, w * 0.082, 'not-help',  -0.03, 'x');
-          paintTweet(p, w * 0.72, h * 0.68, w * 0.42, w * 0.262, 'this-help',  0.02, 'check');
-        }
-      }
-    },
-    // 7 — connect / be friends
-    {
-      paint(p, w, h) {
-        paintBackground(p, w, h, '#ffd6a5', '#ffadad', '#bdb2ff');
-        paintSparkles(p, w, h, 36, 0.55);
-
-        if (h > w) {
-          paintText(p, 'connect with me', w / 2, h * 0.10, w * 0.060, '#3d2c4f',
-            { style: 'italic' });
-          paintGradText(p, '& be friends', w / 2, h * 0.22, w * 0.16,
-            '#ff5e8a', '#ff9a3c', -0.03);
-          paintWavy(p, w * 0.20, w * 0.80, h * 0.30, '#ff5e8a', w * 0.012, w * 0.014, 5);
-
-          paintPolaroid(p, w * 0.50, h * 0.66, w * 0.74, w * 0.86, 'say hi', 'friends', -0.04);
-        } else {
-          const tx = w * 0.28;
-          paintText(p, 'connect with me', tx, h * 0.34, w * 0.044, '#3d2c4f',
-            { style: 'italic' });
-          paintGradText(p, '& be friends', tx, h * 0.50, w * 0.090,
-            '#ff5e8a', '#ff9a3c', -0.03);
-          paintWavy(p, tx - w * 0.14, tx + w * 0.14, h * 0.62, '#ff5e8a', w * 0.006, w * 0.008, 5);
-
-          paintPolaroid(p, w * 0.74, h * 0.50, w * 0.32, w * 0.38, 'say hi', 'friends', -0.04);
-        }
-      }
-    },
-  ];
+  // Pages are loaded from the manifest as pre-rendered snapshots (PNG) for
+  // every non-final page; the final page is rendered live in an iframe once
+  // the user reaches the static-mode transition.
 
   // ---------- layer state ----------
   let currentLayer = 0;
@@ -758,32 +244,39 @@
   // once the user reaches the last page.
   let staticMode = false;
 
-  function paintStaticPage() {
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    PAGES[currentLayer].paint(ctx, W, H);
-  }
   function enterStaticMode() {
     staticMode = true;
     glCanvas.style.display = 'none';
-    paintStaticPage();
+    canvas.style.display = 'none';
+    const final = pages[pages.length - 1];
+    const iframe = document.createElement('iframe');
+    iframe.src = final.html;
+    iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;';
+    document.body.appendChild(iframe);
   }
 
-  function paintPage(config, p, target, w, h) {
-    target.width  = Math.max(1, Math.round(w * PAGE_SCALE));
+  function paintPage(page, p, target, w, h) {
+    target.width = Math.max(1, Math.round(w * PAGE_SCALE));
     target.height = Math.max(1, Math.round(h * PAGE_SCALE));
     p.setTransform(PAGE_SCALE, 0, 0, PAGE_SCALE, 0, 0);
-    config.paint(p, w, h);
+    p.clearRect(0, 0, w, h);
+    if (page.kind === 'snapshot') {
+      p.drawImage(page.img, 0, 0, w, h);
+    } else {
+      // final-page slot — draw a solid backdrop; the iframe handles real content
+      p.fillStyle = '#000';
+      p.fillRect(0, 0, w, h);
+    }
   }
 
   function repaintLayers() {
     if (!cols) return;
     const cw = (cols - 1) * restX;
     const ch = (rows - 1) * restY;
-    paintPage(PAGES[currentLayer], pageCtx, pageCanvas, cw, ch);
+    paintPage(pages[currentLayer], pageCtx, pageCanvas, cw, ch);
     uploadPageTexture();
-    if (currentLayer + 1 < PAGES.length) {
-      paintPage(PAGES[currentLayer + 1], bgCtx, bgCanvas, cw, ch);
+    if (currentLayer + 1 < pages.length) {
+      paintPage(pages[currentLayer + 1], bgCtx, bgCanvas, cw, ch);
       bgReady = true;
     } else {
       bgReady = false;
@@ -796,7 +289,7 @@
   // "every point below the screen"; once true, advanceLayer fires.
   function startFalling() {
     if (falling) return;
-    if (currentLayer >= PAGES.length - 1) return;
+    if (currentLayer >= pages.length - 1) return;
     for (let i = 0; i < points.length; i++) points[i].pinned = false;
     // drop any in-progress drags so the falling cloth can't be held in place
     for (const data of pointers.values()) data.grabs = [];
@@ -806,12 +299,12 @@
   }
 
   function advanceLayer() {
-    if (currentLayer >= PAGES.length - 1) return;
+    if (currentLayer >= pages.length - 1) return;
     currentLayer++;
     falling = false;
     fallingElapsed = 0;
     armedAliveAt = -1;
-    if (currentLayer === PAGES.length - 1) {
+    if (currentLayer === pages.length - 1) {
       enterStaticMode();
       return;
     }
@@ -967,7 +460,7 @@
       return;
     }
 
-    if (currentLayer < PAGES.length - 1 && originalLinks > 0) {
+    if (currentLayer < pages.length - 1 && originalLinks > 0) {
       let alive = 0;
       for (let i = 0; i < links.length; i++) if (links[i].alive) alive++;
       if (armedAliveAt < 0) {
@@ -1128,7 +621,7 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
 
-    if (bgReady && currentLayer + 1 < PAGES.length) {
+    if (bgReady && currentLayer + 1 < pages.length) {
       const cw = (cols - 1) * restX;
       const ch = (rows - 1) * restY;
       ctx.imageSmoothingQuality = 'high';
@@ -1199,7 +692,7 @@
     glCanvas.width  = pw; glCanvas.height = ph;
     glCanvas.style.width  = W + 'px'; glCanvas.style.height = H + 'px';
     if (staticMode) {
-      paintStaticPage();
+      // iframe scales itself via inset:0;width:100%;height:100%
       return;
     }
     buildCloth();
