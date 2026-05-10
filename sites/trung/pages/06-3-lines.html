@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  body { background: linear-gradient(180deg, #ffffff 0%, #fff5cc 50%, #ffd47a 100%); color: #3d2410; }
+  .lead    { position: absolute; left: 50%; top: 8vh;  transform: translateX(-50%); font-size: 4.8vw; text-align: center; width: 92vw; }
+  .sublead { position: absolute; left: 50%; top: 15vh; transform: translateX(-50%); font-size: 4.2vw; font-style: italic; color: rgba(60,40,20,0.85); text-align: center; width: 92vw; }
+  .bullets { position: absolute; left: 50%; top: 23vh; transform: translateX(-50%); font-size: 4vw; color: #5b3a1f; text-align: center; line-height: 1.4; }
+  .pic     { position: absolute; left: 50%; top: 70vh; transform: translate(-50%, -50%) rotate(-2deg); width: 74vw; }
+
+  @media (orientation: landscape) {
+    .lead    { left: 28vw; top: 30vh; transform: none; text-align: left; font-size: 3.8vw; width: 50vw; }
+    .sublead { left: 28vw; top: 40vh; transform: none; text-align: left; font-size: 3.2vw; width: 50vw; }
+    .bullets { left: 28vw; top: 50vh; transform: none; text-align: left; font-size: 3.2vw; }
+    .pic     { left: 74vw; top: 50vh; width: 32vw; }
+  }
+</style>
+</head>
+<body>
+  <div class="page sparkles">
+    <div class="lead">so I'm trying something else —</div>
+    <div class="sublead">for every thing I do — 3 lines:</div>
+    <div class="bullets">
+      · what it is<br />
+      · how I feel<br />
+      · what I learned
+    </div>
+    <figure class="polaroid pic">
+      <img src="../assets/photos/good.jpg" alt="" />
+      <figcaption class="caption">writing</figcaption>
+    </figure>
+  </div>
+</body>
+</html>

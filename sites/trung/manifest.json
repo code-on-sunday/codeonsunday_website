@@ -6,6 +6,7 @@
     { "html": "pages/03-badminton.html" },
     { "html": "pages/04-grew-up.html" },
     { "html": "pages/05-side-projects.html" },
+    { "html": "pages/06-3-lines.html" },
     { "html": "pages/08-friends.html", "final": true }
   ]
 }
