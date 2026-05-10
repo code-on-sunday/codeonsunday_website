@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  body { background: linear-gradient(180deg, #caf0f8 0%, #90e0ef 50%, #a4c3b2 100%); color: #1f3b3b; }
+  .from   { position: absolute; left: 50%; top: 7vh;  transform: translateX(-50%);
+            font-style: italic; font-size: 5.5vw; }
+  .hanoi  { position: absolute; left: 50%; top: 16vh; transform: translate(-50%,-50%) rotate(-2deg);
+            font-size: 22vw; --from: #ff5e8a; --to: #e63946; }
+  .vnam   { position: absolute; left: 50%; top: 24vh; transform: translateX(-50%);
+            font-style: italic; font-weight: 700; font-size: 8.5vw; }
+  .underline { position: absolute; left: 0; right: 0; top: 30vh; }
+  .stack { position: absolute; left: 50%; top: 60vh; transform: translate(-50%, -50%);
+           width: 90vw; height: 70vw; }
+  .stack .polaroid { position: absolute; width: 50vw; }
+  .p1 { left:  5vw; top: -5vw; transform: rotate(-7deg); }
+  .p2 { left: 41vw; top:  5vw; transform: rotate( 4deg); }
+  .p3 { left: 17vw; top: 22vw; transform: rotate(-3deg); }
+
+  @media (orientation: landscape) {
+    .from   { font-size: 4vw; top: 10vh; }
+    .hanoi  { font-size: 16vw; top: 22vh; }
+    .vnam   { font-size: 6vw; top: 32vh; }
+    .underline { top: 40vh; }
+    .stack { top: 75vh; width: 78vw; height: 28vw; }
+    .stack .polaroid { width: 21vw; }
+    .p1 { left:  8vw; top: 0; transform: rotate(-6deg); }
+    .p2 { left: 38vw; top: 1vw; transform: rotate( 2deg); }
+    .p3 { left: 70vw; top: 0;   transform: rotate(-4deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="page sparkles">
+    <div class="from">I'm from</div>
+    <div class="grad hanoi">Hà Nội</div>
+    <div class="vnam">Việt Nam</div>
+    <div class="wavy underline"></div>
+    <div class="stack">
+      <figure class="polaroid p1"><img src="../assets/photos/river.webp" alt="" /><figcaption class="caption">red river</figcaption></figure>
+      <figure class="polaroid p2"><img src="../assets/photos/hanoi.webp" alt="" /><figcaption class="caption">Hanoi</figcaption></figure>
+      <figure class="polaroid p3"><img src="../assets/photos/vietnam.webp" alt="" /><figcaption class="caption">việt nam</figcaption></figure>
+    </div>
+  </div>
+</body>
+</html>
