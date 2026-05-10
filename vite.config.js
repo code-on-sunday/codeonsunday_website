@@ -30,7 +30,7 @@ function clothTear() {
           try {
             const decoded = decodeURIComponent(url);
             const filePath = path.normalize(path.join(root, decoded));
-            if (!filePath.startsWith(sitesRoot)) {
+            if (!filePath.startsWith(sitesRoot + path.sep)) {
               res.writeHead(403); res.end(); return;
             }
             const data = await readFile(filePath);
@@ -53,7 +53,8 @@ function clothTear() {
     },
     async closeBundle() {
       // 3. Copy sites/ → dist/sites/ at build time
-      await cp(sitesRoot, path.join(root, 'dist', 'sites'), { recursive: true });
+      await cp(sitesRoot, path.join(root, 'dist', 'sites'), { recursive: true })
+        .catch((e) => { if (e.code !== 'ENOENT') throw e; });
     },
   };
 }
