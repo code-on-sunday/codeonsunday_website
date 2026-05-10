@@ -1,0 +1,7 @@
+{
+  "title": "demo-other",
+  "pages": [
+    { "html": "pages/01-front.html" },
+    { "html": "pages/02-back.html", "final": true }
+  ]
+}

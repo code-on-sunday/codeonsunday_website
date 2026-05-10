@@ -1,0 +1,4 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+             font-family: system-ui, sans-serif; }
+.page { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
