@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import chokidar from 'chokidar';
 import { snapshotBasename } from '../src/lib/snapshot-paths.js';
 import { validateManifest } from '../src/lib/route.js';
 
@@ -49,45 +50,82 @@ const BREAKPOINTS = [
   { name: 'landscape', width: 1280, height: 800, dpr: 1.5 },
 ];
 
+async function snapshotPage(browser, siteName, port, page) {
+  const base = snapshotBasename(page.html);
+  const siteDir = path.join(REPO_ROOT, 'sites', siteName);
+  const snapshotsDir = path.join(siteDir, 'snapshots');
+  for (const bp of BREAKPOINTS) {
+    const ctx = await browser.newContext({
+      viewport: { width: bp.width, height: bp.height },
+      deviceScaleFactor: bp.dpr,
+    });
+    const tab = await ctx.newPage();
+    const url = `http://127.0.0.1:${port}/sites/${siteName}/${page.html}`;
+    console.log(`snapshot ${siteName}/${base} @ ${bp.name} ← ${url}`);
+    await tab.goto(url, { waitUntil: 'networkidle' });
+    const out = path.join(snapshotsDir, `${base}.${bp.name}.png`);
+    await tab.screenshot({ path: out, fullPage: false });
+    await ctx.close();
+  }
+}
+
 async function main() {
-  const siteName = process.argv[2];
+  const args = process.argv.slice(2);
+  const watch = args.includes('--watch');
+  const siteName = args.find((a) => !a.startsWith('-'));
   if (!siteName) {
-    console.error('usage: node scripts/snapshot.mjs <site>');
+    console.error('usage: node scripts/snapshot.mjs <site> [--watch]');
     process.exit(1);
   }
   const siteDir = path.join(REPO_ROOT, 'sites', siteName);
-  const manifestPath = path.join(siteDir, 'manifest.json');
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const manifest = JSON.parse(await readFile(path.join(siteDir, 'manifest.json'), 'utf8'));
   validateManifest(manifest);
-
-  const snapshotsDir = path.join(siteDir, 'snapshots');
-  await mkdir(snapshotsDir, { recursive: true });
+  await mkdir(path.join(siteDir, 'snapshots'), { recursive: true });
 
   const { server, port } = await startStaticServer(REPO_ROOT);
-  console.log(`static server: http://127.0.0.1:${port}`);
   const browser = await chromium.launch();
-  try {
-    const nonFinal = manifest.pages.filter((p) => !p.final);
-    for (const page of nonFinal) {
-      const base = snapshotBasename(page.html);
-      for (const bp of BREAKPOINTS) {
-        const ctx = await browser.newContext({
-          viewport: { width: bp.width, height: bp.height },
-          deviceScaleFactor: bp.dpr,
-        });
-        const tab = await ctx.newPage();
-        const url = `http://127.0.0.1:${port}/sites/${siteName}/${page.html}`;
-        console.log(`snapshot ${siteName}/${base} @ ${bp.name} <- ${url}`);
-        await tab.goto(url, { waitUntil: 'networkidle' });
-        const out = path.join(snapshotsDir, `${base}.${bp.name}.png`);
-        await tab.screenshot({ path: out, fullPage: false, omitBackground: false });
-        await ctx.close();
-      }
+
+  const nonFinal = manifest.pages.filter((p) => !p.final);
+
+  if (!watch) {
+    try {
+      for (const page of nonFinal) await snapshotPage(browser, siteName, port, page);
+    } finally {
+      await browser.close();
+      server.close();
     }
-  } finally {
+    return;
+  }
+
+  // Watch mode: keep browser + server alive; SIGINT triggers cleanup.
+  process.on('SIGINT', async () => {
+    console.log('\nexiting watch mode...');
     await browser.close();
     server.close();
+    process.exit(0);
+  });
+
+  for (const page of nonFinal) {
+    try { await snapshotPage(browser, siteName, port, page); }
+    catch (err) { console.error('snapshot failed:', err.message); }
   }
+
+  console.log('watching for changes... (Ctrl-C to exit)');
+  const watcher = chokidar.watch(
+    [path.join(siteDir, 'pages'), path.join(siteDir, 'assets')],
+    { ignoreInitial: true }
+  );
+  let timer = null;
+  watcher.on('all', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      console.log('change detected — re-snapshotting all pages');
+      for (const page of nonFinal) {
+        try { await snapshotPage(browser, siteName, port, page); }
+        catch (err) { console.error('snapshot failed:', err.message); }
+      }
+    }, 200);
+  });
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });
