@@ -3,6 +3,7 @@
   "pages": [
     { "html": "pages/01-hello.html" },
     { "html": "pages/02-hanoi.html" },
+    { "html": "pages/03-badminton.html" },
     { "html": "pages/08-friends.html", "final": true }
   ]
 }

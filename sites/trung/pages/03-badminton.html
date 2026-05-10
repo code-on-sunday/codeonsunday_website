@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  body { background: linear-gradient(180deg, #fdf6c8 0%, #bef264 50%, #7cd6a8 100%); color: #2a4d2c; }
+  .right-now { position: absolute; left: 12vw; top: 6vh; font-style: italic; font-size: 5.5vw; transform: rotate(-3deg); }
+  .learn-line { position: absolute; left: 50%; top: 16vh; transform: translateX(-50%); font-size: 6.2vw; text-align: center; width: 90vw; }
+  .badminton { position: absolute; left: 50%; top: 26vh; transform: translate(-50%, -50%) rotate(1deg);
+               font-size: 11vw; --from: #16a34a; --to: #0ea5e9; }
+  .smash { position: absolute; left: 50%; top: 62vh; transform: translate(-50%, -50%) rotate(-2deg); width: 78vw; }
+
+  @media (orientation: landscape) {
+    .right-now  { font-size: 4vw; top: 13vh; left: 16vw; }
+    .learn-line { font-size: 5vw; top: 23vh; }
+    .badminton  { font-size: 10.5vw; top: 36vh; }
+    .smash      { width: 30vw; top: 70vh; }
+  }
+</style>
+</head>
+<body>
+  <div class="page sparkles">
+    <div class="right-now">right now</div>
+    <div class="learn-line">I'm learning to swing a</div>
+    <div class="grad badminton">badminton racket</div>
+    <figure class="polaroid smash">
+      <img src="../assets/photos/badminton.webp" alt="" />
+      <figcaption class="caption">smash</figcaption>
+    </figure>
+  </div>
+</body>
+</html>
