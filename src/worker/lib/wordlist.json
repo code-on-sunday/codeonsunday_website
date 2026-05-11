@@ -1,0 +1,32 @@
+{
+  "adjectives": [
+    "amber", "ancient", "ashen", "balmy", "blue", "bold", "brave", "brisk",
+    "bronze", "calm", "cedar", "clever", "cobalt", "coral", "cosy", "crisp",
+    "dappled", "deep", "dewy", "dusky", "eager", "earthy", "echo", "emerald",
+    "fair", "feather", "fern", "fierce", "forest", "frosty", "gentle", "ginger",
+    "glassy", "golden", "grassy", "happy", "harbor", "hazel", "honey", "humble",
+    "icy", "ivory", "jade", "kind", "lemon", "linen", "lively", "loyal",
+    "lucky", "lush", "marble", "meadow", "merry", "milky", "minty", "misty",
+    "moss", "navy", "noble", "olive", "open", "orchid", "pearly", "pebble",
+    "plum", "polar", "quiet", "rainy", "red", "river", "rose", "ruby",
+    "saffron", "sandy", "sea", "silver", "skylark", "snowy", "stone", "stormy",
+    "summer", "sunny", "sweet", "tawny", "teal", "thunder", "tidal", "tide",
+    "topaz", "twilight", "umber", "valley", "velvet", "violet", "warm", "willow",
+    "winter", "young", "zen", "azure", "breezy"
+  ],
+  "nouns": [
+    "almond", "anchor", "apple", "arrow", "ashen", "aspen", "badger", "bay",
+    "beacon", "bear", "beech", "berry", "bird", "blossom", "boat", "branch",
+    "breeze", "brook", "bunny", "canyon", "cedar", "cliff", "cloud", "clover",
+    "coast", "comet", "coral", "cove", "crow", "dawn", "deer", "den",
+    "desert", "dew", "drift", "dune", "eagle", "echo", "elm", "ember",
+    "fern", "field", "finch", "fire", "fjord", "flame", "flock", "fox",
+    "frost", "garden", "glade", "globe", "grove", "gull", "harbor", "harvest",
+    "hawk", "haze", "heath", "hill", "horizon", "ivy", "jay", "juniper",
+    "kestrel", "lake", "lantern", "leaf", "ledge", "lily", "linden", "lotus",
+    "lynx", "magpie", "marble", "marigold", "marsh", "meadow", "mesa", "mist",
+    "moon", "morning", "moss", "mountain", "nest", "oak", "ocean", "orchard",
+    "otter", "owl", "palm", "path", "peak", "pearl", "pebble", "petal",
+    "pine", "pond", "poppy", "prairie", "puffin"
+  ]
+}
