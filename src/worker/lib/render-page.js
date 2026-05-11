@@ -44,6 +44,12 @@ function gradientBackground({ from, mid, to }) {
   return `linear-gradient(180deg, ${from} 0%, ${mid} 50%, ${to} 100%)`;
 }
 
+const ROTATIONS = [-3, 3, -2, 4, -3, 2];
+
+function rotationFor(index) {
+  return ROTATIONS[index % ROTATIONS.length];
+}
+
 function renderIntro({ paletteIndex }) {
   const p = paletteFor(paletteIndex);
   return `<!doctype html>
@@ -73,9 +79,41 @@ body { background: ${gradientBackground(p)}; }
 </html>`;
 }
 
+function renderPhoto({ paletteIndex, rotationIndex, photoUrl }) {
+  const p = paletteFor(paletteIndex);
+  const rot = rotationFor(rotationIndex);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>photo</title>
+<style>${COMMON_STYLE}
+body { background: ${gradientBackground(p)}; }
+.pic { position: absolute; left: 50%; top: 50%;
+       transform: translate(-50%, -50%) rotate(${rot}deg);
+       width: 70vw; }
+@media (orientation: landscape) {
+  .pic { width: 32vw; }
+}
+</style>
+</head>
+<body>
+<div class="page sparkles">
+  <div class="pic">
+    <figure class="polaroid">
+      <img src="${photoUrl}" alt="" />
+    </figure>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
 export function renderPage(kind, opts) {
   switch (kind) {
     case 'intro': return renderIntro(opts);
+    case 'photo': return renderPhoto(opts);
     default: throw new Error(`renderPage: unknown kind ${kind}`);
   }
 }
