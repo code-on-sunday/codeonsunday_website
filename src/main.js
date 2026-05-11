@@ -73,6 +73,16 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   }
   let pagesOrientation = currentOrientation();
 
+  // Pre-load the final-page iframe at z-index 0 beneath the canvases so its
+  // HTML/CSS/images are warm by the time the cloth peels open to reveal it.
+  // Holes in the second-to-last cloth show through to this iframe directly;
+  // entering static mode just hides the canvases above it.
+  const finalSlot = pages[pages.length - 1];
+  const finalIframe = document.createElement('iframe');
+  finalIframe.src = finalSlot.html;
+  finalIframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent;z-index:0;';
+  document.body.insertBefore(finalIframe, document.body.firstChild);
+
   // ---------- WebGL renderer for the cloth mesh ----------
   const glCanvas = document.getElementById('gl');
   const gl = glCanvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true });
@@ -255,11 +265,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     staticMode = true;
     glCanvas.style.display = 'none';
     canvas.style.display = 'none';
-    const final = pages[pages.length - 1];
-    const iframe = document.createElement('iframe');
-    iframe.src = final.html;
-    iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;';
-    document.body.appendChild(iframe);
+    // The final iframe is pre-loaded at z-index 0; hiding the canvases reveals it.
   }
 
   function paintPage(page, p, target, w, h) {
@@ -269,10 +275,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     p.clearRect(0, 0, w, h);
     if (page.kind === 'snapshot') {
       p.drawImage(page.img, 0, 0, w, h);
-    } else {
-      // final-page slot — draw a solid backdrop; the iframe handles real content
-      p.fillStyle = '#000';
-      p.fillRect(0, 0, w, h);
     }
   }
 
@@ -282,10 +284,13 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     const ch = (rows - 1) * restY;
     paintPage(pages[currentLayer], pageCtx, pageCanvas, cw, ch);
     uploadPageTexture();
-    if (currentLayer + 1 < pages.length) {
-      paintPage(pages[currentLayer + 1], bgCtx, bgCanvas, cw, ch);
+    const next = pages[currentLayer + 1];
+    if (next && next.kind === 'snapshot') {
+      paintPage(next, bgCtx, bgCanvas, cw, ch);
       bgReady = true;
     } else {
+      // Next page is the final iframe (already z-index 0 beneath the canvases);
+      // leave the 2D backdrop transparent so cloth holes reveal the iframe.
       bgReady = false;
     }
   }
