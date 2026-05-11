@@ -249,6 +249,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   // Cloth simulation, GL rendering, and tear interactions are all disabled
   // once the user reaches the last page.
   let staticMode = false;
+  let simulating = false;
 
   function enterStaticMode() {
     staticMode = true;
@@ -381,6 +382,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   }
 
   function buildCloth() {
+    simulating = false;
     points = []; links = [];
 
     const usableW = W;
@@ -437,6 +439,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   // ---------- simulation ----------
   function step(dt) {
     if (staticMode) return;
+    if (!simulating && !falling) return;
     syncGrabs();
     const sub = dt / SUBSTEPS;
     for (let s = 0; s < SUBSTEPS; s++) substep(sub);
@@ -620,6 +623,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     glCanvas.setPointerCapture(e.pointerId);
     const p = pointerPos(e);
     const grabs = findGrabPoints(p.x, p.y);
+    if (grabs.length > 0) simulating = true;
     pointers.set(e.pointerId, { x: p.x, y: p.y, grabs });
   });
   glCanvas.addEventListener('pointermove', (e) => {
