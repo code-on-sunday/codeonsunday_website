@@ -13,7 +13,7 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       mangle: true,
-      compress: { drop_console: false },
+      compress: { drop_console: true },
       format: { comments: false },
     },
     sourcemap: false,
