@@ -8,11 +8,11 @@ export default {
     switch (route.kind) {
       case 'apex-form':
         return env.ASSETS.fetch(
-          new Request(new URL('/create.html', url.origin), request)
+          new Request(new URL('/create', url.origin), request)
         );
       case 'site-root':
         return env.ASSETS.fetch(
-          new Request(new URL('/index.html', url.origin), request)
+          new Request(new URL('/', url.origin), request)
         );
       case 'static-asset':
         return env.ASSETS.fetch(request);
