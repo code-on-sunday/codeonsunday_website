@@ -592,9 +592,9 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     return grabs;
   }
   // ---------- rendering ----------
-  // 2D layer paints the *next* page (as a backdrop the size of the cloth) plus
-  // pin halos, then GL paints the current cloth on top. Holes in the cloth
-  // reveal the next page beneath.
+  // 2D layer paints the *next* page (as a backdrop the size of the cloth),
+  // then GL paints the current cloth on top. Holes in the cloth reveal the
+  // next page beneath.
   function render() {
     if (staticMode) return;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
