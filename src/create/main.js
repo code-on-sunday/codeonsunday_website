@@ -13,14 +13,28 @@ let turnstileToken = null;
 let turnstileWidgetId = null;
 const turnstileEl = document.getElementById('turnstile');
 
-window.onTurnstileLoad = () => {
-  turnstileWidgetId = window.turnstile.render(turnstileEl, {
-    sitekey: turnstileEl.dataset.sitekey,
-    callback: (token) => { turnstileToken = token; refresh(); },
-    'error-callback': () => { turnstileToken = null; refresh(); },
-    'expired-callback': () => { turnstileToken = null; refresh(); },
-  });
-};
+const TURNSTILE_DEADLINE_MS = 10_000;
+const turnstileStart = Date.now();
+
+function tryRenderTurnstile() {
+  if (turnstileWidgetId !== null) return;
+  if (window.turnstile && typeof window.turnstile.render === 'function') {
+    turnstileWidgetId = window.turnstile.render(turnstileEl, {
+      sitekey: turnstileEl.dataset.sitekey,
+      callback: (token) => { turnstileToken = token; refresh(); },
+      'error-callback': () => { turnstileToken = null; refresh(); },
+      'expired-callback': () => { turnstileToken = null; refresh(); },
+    });
+    return;
+  }
+  if (Date.now() - turnstileStart > TURNSTILE_DEADLINE_MS) {
+    errorEl.hidden = false;
+    errorEl.textContent = "couldn't load the challenge — disable script blockers and refresh";
+    return;
+  }
+  setTimeout(tryRenderTurnstile, 100);
+}
+tryRenderTurnstile();
 
 function refresh() {
   strip.innerHTML = '';
