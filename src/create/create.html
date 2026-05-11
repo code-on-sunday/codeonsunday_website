@@ -2,12 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>thiiss.me — make yours</title>
+<link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-<h1>thiiss.me</h1>
-<p>upload form coming soon</p>
-<script type="module" src="./main.js"></script>
+  <main class="page sparkles">
+    <h1 class="grad title">this is me</h1>
+    <p class="hint">drop <strong>3 to 6</strong> photos of you</p>
+    <label class="dropzone" id="dropzone">
+      <input type="file" id="file-input" accept="image/*" multiple hidden />
+      <span class="dropzone__cta">tap or drop here</span>
+    </label>
+    <ul class="strip" id="strip"></ul>
+    <button class="weave" id="weave" disabled>weave my page</button>
+  </main>
+  <div class="overlay" id="overlay" hidden>
+    <div class="spinner"></div>
+    <p class="overlay__text" id="overlay-text">uploading photos…</p>
+  </div>
+  <p class="error" id="error" hidden></p>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>

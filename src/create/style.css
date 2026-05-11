@@ -1,2 +1,81 @@
-/* src/create/style.css — populated in Task 24 */
-body { margin: 0; }
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; min-height: 100vh;
+  font-family: "Marker Felt", "Comic Sans MS", "Bradley Hand", "Chalkboard SE", cursive;
+  -webkit-font-smoothing: antialiased;
+  color: #3d2c4f;
+  background: linear-gradient(180deg, #ffd6a5 0%, #ffadad 50%, #bdb2ff 100%);
+}
+.page { position: relative; min-height: 100vh; padding: 8vh 6vw; overflow: hidden; }
+.sparkles::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 7% 9%, rgba(255,255,255,.55) 2px, transparent 3px),
+    radial-gradient(circle at 19% 41%, rgba(255,255,255,.55) 3px, transparent 4px),
+    radial-gradient(circle at 32% 13%, rgba(255,255,255,.55) 2px, transparent 3px),
+    radial-gradient(circle at 51% 67%, rgba(255,255,255,.55) 4px, transparent 5px),
+    radial-gradient(circle at 68% 22%, rgba(255,255,255,.55) 3px, transparent 4px),
+    radial-gradient(circle at 79% 78%, rgba(255,255,255,.55) 2px, transparent 3px),
+    radial-gradient(circle at 88% 35%, rgba(255,255,255,.55) 3px, transparent 4px),
+    radial-gradient(circle at 12% 86%, rgba(255,255,255,.55) 2px, transparent 3px),
+    radial-gradient(circle at 44% 92%, rgba(255,255,255,.55) 3px, transparent 4px);
+}
+.title {
+  font-style: italic; font-weight: 700; font-size: 16vw; margin: 0 0 4vh;
+  background: linear-gradient(90deg, #ff5e8a, #ff9a3c);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0.06em 0.06em 0 rgba(40,20,60,0.28));
+}
+.hint { font-style: italic; font-size: 5vw; margin: 0 0 4vh; }
+.dropzone {
+  display: flex; align-items: center; justify-content: center;
+  border: 3px dashed rgba(61,44,79,0.4); border-radius: 16px;
+  height: 30vh; cursor: pointer; background: rgba(255,255,255,0.35);
+}
+.dropzone.dragover { background: rgba(255,255,255,0.6); border-color: #ff5e8a; }
+.dropzone__cta { font-size: 5vw; opacity: 0.7; }
+.strip {
+  list-style: none; padding: 0; margin: 4vh 0; display: flex; gap: 2vw;
+  flex-wrap: wrap;
+}
+.strip li {
+  position: relative; width: 20vw; aspect-ratio: 1; background: #fff8ef;
+  padding: 1vw; box-shadow: 0.6vmin 0.8vmin 0 rgba(40,20,60,0.30);
+}
+.strip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.strip button {
+  position: absolute; top: -1.5vw; right: -1.5vw; width: 5vw; height: 5vw;
+  border: 0; border-radius: 50%; background: #3d2c4f; color: #fff8ef;
+  font: inherit; font-size: 3vw; cursor: pointer;
+}
+.weave {
+  display: block; margin: 4vh auto 0; padding: 1em 1.6em; border: 0;
+  border-radius: 999px; background: #3d2c4f; color: #fff8ef;
+  font: inherit; font-size: 5vw; box-shadow: 0.4vmin 0.6vmin 0 rgba(40,20,60,0.30);
+  cursor: pointer;
+}
+.weave:disabled { opacity: 0.4; cursor: not-allowed; }
+.error { color: #b03050; font-size: 4vw; text-align: center; margin: 3vh; }
+.overlay {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.92);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 10;
+}
+.spinner {
+  width: 14vw; height: 14vw; border: 1vw solid rgba(61,44,79,0.2);
+  border-top-color: #ff5e8a; border-radius: 50%; animation: spin 0.9s linear infinite;
+}
+.overlay__text { margin-top: 4vh; font-size: 5vw; font-style: italic; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (min-width: 700px) {
+  .title { font-size: 8vw; }
+  .hint  { font-size: 2.4vw; }
+  .dropzone__cta { font-size: 2.4vw; }
+  .strip li { width: 9vw; }
+  .strip button { width: 2vw; height: 2vw; font-size: 1.4vw; top: -0.6vw; right: -0.6vw; }
+  .weave { font-size: 2.4vw; }
+  .overlay__text { font-size: 2.4vw; }
+  .spinner { width: 6vw; height: 6vw; border-width: 0.5vw; }
+}
