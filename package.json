@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "snapshot": "node scripts/snapshot.mjs"
+    "snapshot": "node scripts/snapshot.mjs",
+    "build:thiiss": "vite build --config vite.config.thiiss.js",
+    "dev:thiiss": "wrangler dev --config wrangler.thiiss.jsonc --port 8788"
   },
   "devDependencies": {
     "@cloudflare/puppeteer": "^1.1.0",
