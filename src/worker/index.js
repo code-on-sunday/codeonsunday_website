@@ -2,6 +2,7 @@ import { dispatchRoute } from './router.js';
 import { handleManifest } from './handlers/manifest.js';
 import { handleSnapshot } from './handlers/snapshot.js';
 import { handlePhoto } from './handlers/photo.js';
+import { handleFinalPage } from './handlers/final-page.js';
 
 export default {
   async fetch(request, env) {
@@ -27,6 +28,7 @@ export default {
       case 'apex-photo':
         return handlePhoto(env, route.slug, route.index);
       case 'site-final-page':
+        return handleFinalPage(env, route.slug);
       case 'apex-create':
         return new Response(`not implemented: ${route.kind}\n`, { status: 501 });
       case 'not-found':
