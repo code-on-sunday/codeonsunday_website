@@ -2,6 +2,7 @@
 node_modules/
 dist/
 dist-thiiss/
+.wrangler/
 .DS_Store
 *.heic
 .superpowers/
