@@ -5,6 +5,7 @@ import { handlePhoto } from './handlers/photo.js';
 import { handleFinalPage } from './handlers/final-page.js';
 import { handleCreate } from './handlers/create.js';
 import { snapshotPages } from './lib/snapshot-pages.js';
+import { verifyTurnstile } from './lib/turnstile.js';
 
 export default {
   async fetch(request, env) {
@@ -31,9 +32,15 @@ export default {
         return handlePhoto(env, route.slug, route.index);
       case 'site-final-page':
         return handleFinalPage(env, route.slug);
-      case 'apex-create':
-        return handleCreate(env, request, (slug, pages) =>
-          snapshotPages(env, slug, pages));
+      case 'apex-create': {
+        const remoteIp = request.headers.get('cf-connecting-ip') || undefined;
+        return handleCreate(
+          env,
+          request,
+          (slug, pages) => snapshotPages(env, slug, pages),
+          (token) => verifyTurnstile({ token, secret: env.TURNSTILE_SECRET, remoteIp }),
+        );
+      }
       case 'not-found':
       default:
         return new Response('not found\n', { status: 404 });

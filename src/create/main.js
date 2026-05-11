@@ -9,6 +9,11 @@ const errorEl = document.getElementById('error');
 const MAX = 6;
 const MIN = 3;
 let photos = []; // [{ id, file, preview }]
+let turnstileToken = null;
+
+window.onTurnstileSuccess = (token) => { turnstileToken = token; refresh(); };
+window.onTurnstileError = () => { turnstileToken = null; refresh(); };
+window.onTurnstileExpired = () => { turnstileToken = null; refresh(); };
 
 function refresh() {
   strip.innerHTML = '';
@@ -20,7 +25,8 @@ function refresh() {
     li.querySelector('button').addEventListener('click', () => removePhoto(p.id));
     strip.appendChild(li);
   });
-  weave.disabled = !(photos.length >= MIN && photos.length <= MAX);
+  const photoCountOk = photos.length >= MIN && photos.length <= MAX;
+  weave.disabled = !(photoCountOk && turnstileToken);
   errorEl.hidden = true;
 }
 
@@ -106,6 +112,8 @@ const ERROR_TEXT = {
   snapshot_failed: 'something went wrong weaving your page — try again',
   upload_failed: "we couldn't upload one of your photos — try again",
   manifest_write_failed: "we couldn't save your page — try again",
+  turnstile_required: 'please complete the challenge above',
+  turnstile_failed: "challenge didn't pass — try again",
 };
 
 weave.addEventListener('click', async () => {
@@ -115,6 +123,7 @@ weave.addEventListener('click', async () => {
   try {
     const fd = new FormData();
     for (const p of photos) fd.append('photos[]', p.file);
+    fd.append('cf-turnstile-response', turnstileToken);
     const res = await fetch('/api/create', { method: 'POST', body: fd });
     if (!res.ok) {
       const body = await res.json().catch(() => ({ error: 'unknown' }));
@@ -124,6 +133,9 @@ weave.addEventListener('click', async () => {
     window.location.href = url;
   } catch (err) {
     stopLoading();
+    turnstileToken = null;
+    if (window.turnstile) window.turnstile.reset('#turnstile');
+    refresh();
     errorEl.hidden = false;
     errorEl.textContent = ERROR_TEXT[err.message] || 'something went wrong — try again';
   }

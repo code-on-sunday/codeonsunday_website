@@ -34,9 +34,14 @@ const okSnapshot = (r2) => async (slug, pages) => {
 };
 const failSnapshot = async () => { throw new Error('boom'); };
 
-async function makeRequest(photos) {
+const okVerify = async () => ({ ok: true });
+const failVerify = async () => ({ ok: false, error: 'turnstile_failed' });
+const requireVerify = async () => ({ ok: false, error: 'turnstile_required' });
+
+async function makeRequest(photos, { token = 'good-token' } = {}) {
   const fd = new FormData();
   for (const p of photos) fd.append('photos[]', p);
+  if (token !== null) fd.append('cf-turnstile-response', token);
   return new Request('https://thiiss.me/api/create', { method: 'POST', body: fd });
 }
 
@@ -44,7 +49,7 @@ describe('handleCreate', () => {
   it('returns 200 with slug + url for 3 valid photos', async () => {
     const env = makeEnv();
     const req = await makeRequest([jpeg(), jpeg(), jpeg()]);
-    const res = await handleCreate(env, req, okSnapshot(env.__r2));
+    const res = await handleCreate(env, req, okSnapshot(env.__r2), okVerify);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.slug).toMatch(/^[a-z]+-[a-z]+(-[0-9a-f]{3})?$/);
@@ -65,7 +70,7 @@ describe('handleCreate', () => {
   it('rejects 2 photos with 400 photo_count', async () => {
     const env = makeEnv();
     const req = await makeRequest([jpeg(), jpeg()]);
-    const res = await handleCreate(env, req, okSnapshot(env.__r2));
+    const res = await handleCreate(env, req, okSnapshot(env.__r2), okVerify);
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'photo_count' });
     expect(env.R2_BLOBS.put).not.toHaveBeenCalled();
@@ -75,12 +80,48 @@ describe('handleCreate', () => {
   it('cleans up R2 on snapshot failure', async () => {
     const env = makeEnv();
     const req = await makeRequest([jpeg(), jpeg(), jpeg()]);
-    const res = await handleCreate(env, req, failSnapshot);
+    const res = await handleCreate(env, req, failSnapshot, okVerify);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'snapshot_failed' });
     // No manifest written
     expect(env.KV_MANIFESTS.put).not.toHaveBeenCalled();
     // Best-effort R2 cleanup ran on photos/ prefix
     expect(env.R2_BLOBS.delete).toHaveBeenCalled();
+  });
+
+  it('rejects with 400 turnstile_required when no token in form', async () => {
+    const env = makeEnv();
+    const req = await makeRequest([jpeg(), jpeg(), jpeg()], { token: null });
+    const res = await handleCreate(env, req, okSnapshot(env.__r2), requireVerify);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'turnstile_required' });
+    expect(env.R2_BLOBS.put).not.toHaveBeenCalled();
+    expect(env.KV_MANIFESTS.put).not.toHaveBeenCalled();
+  });
+
+  it('rejects with 403 turnstile_failed when verify fails', async () => {
+    const env = makeEnv();
+    const req = await makeRequest([jpeg(), jpeg(), jpeg()], { token: 'bad' });
+    const res = await handleCreate(env, req, okSnapshot(env.__r2), failVerify);
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'turnstile_failed' });
+    expect(env.R2_BLOBS.put).not.toHaveBeenCalled();
+    expect(env.KV_MANIFESTS.put).not.toHaveBeenCalled();
+  });
+
+  it('does not call snapshotFn when turnstile verify fails', async () => {
+    const env = makeEnv();
+    const req = await makeRequest([jpeg(), jpeg(), jpeg()], { token: 'bad' });
+    const snapshotSpy = vi.fn();
+    await handleCreate(env, req, snapshotSpy, failVerify);
+    expect(snapshotSpy).not.toHaveBeenCalled();
+  });
+
+  it('passes the form token through to verifyFn', async () => {
+    const env = makeEnv();
+    const req = await makeRequest([jpeg(), jpeg(), jpeg()], { token: 'tok-xyz' });
+    const verifySpy = vi.fn(async () => ({ ok: true }));
+    await handleCreate(env, req, okSnapshot(env.__r2), verifySpy);
+    expect(verifySpy).toHaveBeenCalledWith('tok-xyz');
   });
 });

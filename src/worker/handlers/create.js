@@ -27,11 +27,21 @@ function pad2(n) {
  * @param {Request} request
  * @param {(slug: string, pages: {base: string, html: string}[]) => Promise<void>} snapshotFn
  *   Required: function that snapshots each page to R2 in both orientations.
+ * @param {(token: string|null) => Promise<{ ok: true } | { ok: false, error: string }>} verifyFn
+ *   Required: function that validates the Turnstile token.
  */
-export async function handleCreate(env, request, snapshotFn) {
+export async function handleCreate(env, request, snapshotFn, verifyFn) {
   let form;
   try { form = await request.formData(); }
   catch { return jsonError(400, 'bad_format'); }
+
+  const token = form.get('cf-turnstile-response');
+  const tokenStr = typeof token === 'string' ? token : null;
+  const verdict = await verifyFn(tokenStr);
+  if (!verdict.ok) {
+    const status = verdict.error === 'turnstile_required' ? 400 : 403;
+    return jsonError(status, verdict.error);
+  }
 
   const photos = form.getAll('photos[]').filter(p => typeof p === 'object');
   const v = validatePhotos(photos);
