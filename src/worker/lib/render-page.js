@@ -26,7 +26,9 @@ html, body {
   background-size: 100% 100%;
 }
 .polaroid {
-  background: #fff8ef; padding: 5%; padding-bottom: 18%;
+  background: #fff8ef;
+  width: var(--w);
+  padding: calc(var(--w) * 0.05); padding-bottom: calc(var(--w) * 0.18);
   box-shadow: 0.6vmin 0.8vmin 0 rgba(40,20,60,0.30);
   display: flex; flex-direction: column;
 }
@@ -92,9 +94,9 @@ function renderPhoto({ paletteIndex, rotationIndex, photoUrl }) {
 body { background: ${gradientBackground(p)}; }
 .pic { position: absolute; left: 50%; top: 50%;
        transform: translate(-50%, -50%) rotate(${rot}deg);
-       width: 70vw; }
+       --w: 70vw; width: var(--w); }
 @media (orientation: landscape) {
-  .pic { width: 32vw; }
+  .pic { --w: 32vw; }
 }
 </style>
 </head>
@@ -121,7 +123,7 @@ function renderFinal({ paletteIndex, photoUrl }) {
 <style>${COMMON_STYLE}
 body { background: ${gradientBackground(p)}; }
 .pic { position: absolute; left: 50%; top: 32vh;
-       transform: translate(-50%, -50%) rotate(-2deg); width: 56vw; }
+       transform: translate(-50%, -50%) rotate(-2deg); --w: 56vw; width: var(--w); }
 .cta { position: absolute; left: 50%; top: 66vh; transform: translate(-50%, -50%) rotate(-2deg);
        font-size: 12vw; --from: #ff5e8a; --to: #ff9a3c; text-decoration: none; }
 .cta:visited { color: inherit; }
@@ -130,7 +132,7 @@ body { background: ${gradientBackground(p)}; }
        border: 0; border-radius: 999px; background: #3d2c4f; color: #fff8ef;
        text-decoration: none; box-shadow: 0.4vmin 0.6vmin 0 rgba(40,20,60,0.30); }
 @media (orientation: landscape) {
-  .pic { width: 24vw; top: 50vh; left: 28vw; }
+  .pic { --w: 24vw; top: 50vh; left: 28vw; }
   .cta { left: 64vw; top: 44vh; font-size: 7vw; }
   .btn { left: 64vw; bottom: auto; top: 64vh; font-size: 2.4vw; transform: translate(-50%, -50%); }
 }

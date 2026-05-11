@@ -15,21 +15,24 @@
   .underline { position: absolute; left: 0; right: 0; top: 30vh; }
   .stack { position: absolute; left: 50%; top: 60vh; transform: translate(-50%, -50%);
            width: 90vw; height: 70vw; }
-  .stack .polaroid { position: absolute; width: 50vw; }
+  .stack .polaroid { position: absolute; --w: 50vw; }
   .p1 { left:  5vw; top: -5vw; transform: rotate(-7deg); }
   .p2 { left: 41vw; top:  5vw; transform: rotate( 4deg); }
   .p3 { left: 17vw; top: 22vw; transform: rotate(-3deg); }
 
   @media (orientation: landscape) {
-    .from   { font-size: 4vw; top: 10vh; }
-    .hanoi  { font-size: 16vw; top: 22vh; }
-    .vnam   { font-size: 6vw; top: 32vh; }
-    .underline { top: 40vh; }
-    .stack { top: 75vh; width: 78vw; height: 28vw; }
-    .stack .polaroid { width: 21vw; }
-    .p1 { left:  8vw; top: 0; transform: rotate(-6deg); }
-    .p2 { left: 38vw; top: 1vw; transform: rotate( 2deg); }
-    .p3 { left: 70vw; top: 0;   transform: rotate(-4deg); }
+    .from   { font-size: 3vw; top: 5vh; }
+    /* `.hanoi` centers on `top:` via translate(-50%, -50%) — at 11vw font it
+       spans ~5.5vw above and below the `top:` value. Position with that in
+       mind so it doesn't overlap `.from` or `.vnam`. */
+    .hanoi  { font-size: 11vw; top: 24vh; }
+    .vnam   { font-size: 5vw; top: 40vh; }
+    .underline { top: 47vh; }
+    .stack { top: 73vh; width: 76vw; height: 27vw; }
+    .stack .polaroid { --w: 18vw; }
+    .p1 { left:  4vw; top: 0; transform: rotate(-6deg); }
+    .p2 { left: 30vw; top: 1vw; transform: rotate( 2deg); }
+    .p3 { left: 56vw; top: 0;   transform: rotate(-4deg); }
   }
 </style>
 </head>

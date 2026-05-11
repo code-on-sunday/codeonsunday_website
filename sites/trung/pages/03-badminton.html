@@ -10,13 +10,14 @@
   .learn-line { position: absolute; left: 50%; top: 16vh; transform: translateX(-50%); font-size: 6.2vw; text-align: center; width: 90vw; }
   .badminton { position: absolute; left: 50%; top: 26vh; transform: translate(-50%, -50%) rotate(1deg);
                font-size: 11vw; --from: #16a34a; --to: #0ea5e9; }
-  .smash { position: absolute; left: 50%; top: 62vh; transform: translate(-50%, -50%) rotate(-2deg); width: 78vw; }
+  .smash { position: absolute; left: 50%; top: 62vh; transform: translate(-50%, -50%) rotate(-2deg); --w: 78vw; }
 
   @media (orientation: landscape) {
-    .right-now  { font-size: 4vw; top: 13vh; left: 16vw; }
-    .learn-line { font-size: 5vw; top: 23vh; }
-    .badminton  { font-size: 10.5vw; top: 36vh; }
-    .smash      { width: 30vw; top: 70vh; }
+    /* Split layout: text on the left, polaroid on the right. */
+    .right-now  { font-size: 3vw; top: 18vh; left: 6vw; transform: rotate(-3deg); }
+    .learn-line { font-size: 3.6vw; top: 30vh; left: 6vw; transform: none; text-align: left; width: 56vw; }
+    .badminton  { font-size: 7vw; top: 48vh; left: 6vw; transform: rotate(1deg); transform-origin: left center; }
+    .smash      { --w: min(28vw, 50vh); left: 78vw; top: 50vh; }
   }
 </style>
 </head>

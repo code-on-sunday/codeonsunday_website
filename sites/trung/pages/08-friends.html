@@ -10,13 +10,15 @@
   .friend { position: absolute; left: 50%; top: 22vh; transform: translate(-50%,-50%) rotate(-2deg);
             font-size: 16vw; --from: #ff5e8a; --to: #ff9a3c; }
   .underline { position: absolute; left: 0; right: 0; top: 30vh; }
-  .pic    { position: absolute; left: 50%; top: 66vh; transform: translate(-50%, -50%) rotate(-2deg); width: 74vw; }
+  .pic    { position: absolute; left: 50%; top: 66vh; transform: translate(-50%, -50%) rotate(-2deg); --w: 74vw; }
 
   @media (orientation: landscape) {
-    .lead      { left: 28vw; top: 34vh; transform: none; text-align: left; font-size: 4.4vw; }
-    .friend    { left: 28vw; top: 50vh; transform: rotate(-2deg); transform-origin: left center; font-size: 9vw; }
-    .underline { left: 14vw; right: 56vw; top: 62vh; }
-    .pic       { left: 74vw; top: 50vh; width: 32vw; }
+    .lead      { left: 8vw; top: 32vh; transform: none; text-align: left; font-size: 4.4vw; }
+    .friend    { left: 8vw; top: 50vh; transform: rotate(-2deg); transform-origin: left center; font-size: 8vw; }
+    .underline { left: 6vw; right: 60vw; top: 64vh; }
+    /* Cap by both width and height: polaroid height ≈ 137% of width, so a
+       pure 32vw could exceed the viewport on wide-short windows. */
+    .pic       { left: 78vw; top: 50vh; --w: min(32vw, 50vh); }
   }
 </style>
 </head>

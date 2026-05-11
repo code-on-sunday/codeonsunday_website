@@ -41,12 +41,19 @@ html, body {
   filter: drop-shadow(0.06em 0.06em 0 rgba(40,20,60,0.28));
 }
 
-/* polaroid card */
+/* polaroid card.
+   `--w` is the polaroid's intrinsic width — sizing classes set it (the actual
+   `width` is derived from it). Padding scales with --w so the chunky polaroid
+   frame stays proportional to the card itself, not to the containing block /
+   viewport. (`%` padding resolves against containing-block width, and `cqw`
+   on the container's own size-affecting properties falls back to svw — both
+   would give wildly oversized padding when the polaroid is small.) */
 .polaroid {
   container-type: inline-size;
   background: #fff8ef;
-  padding: 5%;
-  padding-bottom: 18%;
+  width: var(--w);
+  padding: calc(var(--w) * 0.05);
+  padding-bottom: calc(var(--w) * 0.18);
   box-shadow: 0.6vmin 0.8vmin 0 rgba(40,20,60,0.30);
   display: flex; flex-direction: column;
 }
@@ -56,9 +63,11 @@ html, body {
 }
 .polaroid .caption {
   font-style: italic; text-align: center;
+  /* cqw works for descendants — the polaroid is the container, so 1cqw = 1%
+     of the polaroid's own inline-size. */
   font-size: 14cqw;
   color: #3d2c4f;
-  margin-top: 7%;
+  margin-top: 7cqw;
 }
 
 /* logo chip — square white card with logo image inside */

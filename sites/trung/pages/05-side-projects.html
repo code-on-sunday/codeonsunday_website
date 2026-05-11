@@ -9,13 +9,13 @@
   .head { position: absolute; left: 50%; top: 10vh; transform: translateX(-50%); font-size: 5vw; text-align: center; width: 90vw; }
   .sub  { position: absolute; left: 50%; top: 17vh; transform: translateX(-50%); font-size: 4vw; font-style: italic; color: #9a92a6; text-align: center; width: 90vw; }
   .sub2 { position: absolute; left: 50%; top: 22vh; transform: translateX(-50%); font-size: 4vw; font-style: italic; color: #9a92a6; text-align: center; width: 90vw; }
-  .pic  { position: absolute; left: 50%; top: 62vh; transform: translate(-50%, -50%) rotate(-2deg); width: 78vw; }
+  .pic  { position: absolute; left: 50%; top: 62vh; transform: translate(-50%, -50%) rotate(-2deg); --w: 78vw; }
 
   @media (orientation: landscape) {
-    .head { left: 28vw; top: 40vh; transform: none; text-align: left; font-size: 3.8vw; width: 50vw; }
-    .sub  { left: 28vw; top: 50vh; transform: none; text-align: left; font-size: 3.2vw; width: 50vw; }
-    .sub2 { left: 28vw; top: 56vh; transform: none; text-align: left; font-size: 3.2vw; width: 50vw; }
-    .pic  { left: 74vw; top: 50vh; width: 32vw; }
+    .head { left: 6vw; top: 28vh; transform: none; text-align: left; font-size: 3vw; width: 54vw; }
+    .sub  { left: 6vw; top: 44vh; transform: none; text-align: left; font-size: 2.4vw; width: 54vw; }
+    .sub2 { left: 6vw; top: 54vh; transform: none; text-align: left; font-size: 2.4vw; width: 54vw; }
+    .pic  { left: 78vw; top: 50vh; --w: min(28vw, 50vh); }
   }
 </style>
 </head>

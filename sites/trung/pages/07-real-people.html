@@ -14,12 +14,17 @@
   .t2 { position: absolute; left: 50%; top: 74vh; transform: translate(-50%, -50%) rotate( 1deg); width: 80vw; height: 49vw; }
 
   @media (orientation: landscape) {
-    .l1 { left: 27vw; top: 32vh; transform: none; text-align: left; font-size: 3.4vw; width: 50vw; }
-    .l2 { left: 27vw; top: 42vh; transform: none; text-align: left; font-size: 3vw;   width: 50vw; }
-    .l3 { left: 27vw; top: 48vh; transform: none; text-align: left; font-size: 3vw;   width: 50vw; }
-    .l4 { left: 27vw; top: 62vh; transform: none; text-align: left; font-size: 3.4vw; width: 50vw; }
-    .t1 { left: 72vw; top: 30vh; width: 42vw; height: 8.2vw; }
-    .t2 { left: 72vw; top: 68vh; width: 42vw; height: 26.2vw; }
+    /* Text-left, tweets-right. Tweets were centered around left:72vw, width
+       42vw — i.e. their left edge sat at 51vw, on top of the 27vw-wide text
+       column. Pull text to the left edge and tweets to the right. */
+    .l1 { left: 6vw; top: 16vh; transform: none; text-align: left; font-size: 3vw; width: 50vw; }
+    .l2 { left: 6vw; top: 30vh; transform: none; text-align: left; font-size: 2.4vw; width: 50vw; }
+    .l3 { left: 6vw; top: 38vh; transform: none; text-align: left; font-size: 2.4vw; width: 50vw; }
+    .l4 { left: 6vw; top: 52vh; transform: none; text-align: left; font-size: 3vw; width: 50vw; }
+    /* Aspect ratios preserved from the original (5.12 and 1.60) to match the
+       natural shape of the underlying tweet screenshots. */
+    .t1 { left: 78vw; top: 22vh; width: 36vw; height: 7vw; }
+    .t2 { left: 78vw; top: 62vh; width: 36vw; height: 22.5vw; }
   }
 </style>
 </head>

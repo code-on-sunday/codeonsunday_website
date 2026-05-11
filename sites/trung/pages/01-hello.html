@@ -9,7 +9,7 @@
   .hello { position: absolute; left: 10vw; top: 7vh; font-size: 10vw;
            font-style: italic; transform: rotate(-4deg); color: #3d2c4f; }
   .polaroid-me { position: absolute; left: 50%; top: 36vh;
-                 width: 66vw; transform: translate(-50%, -50%) rotate(-2deg); }
+                 --w: 66vw; transform: translate(-50%, -50%) rotate(-2deg); }
   .my-name { position: absolute; left: 50%; top: 66vh; transform: translateX(-50%);
              font-size: 7.5vw; color: #5b3a8a; }
   .name-grad { position: absolute; left: 50%; top: 78vh;
@@ -20,7 +20,7 @@
 
   @media (orientation: landscape) {
     .hello { font-size: 6vw; left: 10vw; top: 18vh; }
-    .polaroid-me { left: 78vw; top: 30vh; width: 22vw; transform: translate(-50%, -50%) rotate(4deg); }
+    .polaroid-me { left: 78vw; top: 30vh; --w: 22vw; transform: translate(-50%, -50%) rotate(4deg); }
     .my-name { left: 40vw; top: 40vh; font-size: 5.5vw; }
     .name-grad { left: 40vw; top: 58vh; font-size: 20vw; }
     .underline { left: 16vw; right: 36vw; top: 70vh; }
