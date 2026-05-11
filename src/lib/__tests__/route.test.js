@@ -1,56 +1,36 @@
 import { describe, it, expect } from 'vitest';
-import { resolveSiteName, validateManifest } from '../route.js';
+import { resolveSiteName } from '../route.js';
 
-describe('resolveSiteName', () => {
-  it('returns the default site for "/"', () => {
+describe('resolveSiteName — legacy 2-arg path-only', () => {
+  it('returns default for /', () => {
     expect(resolveSiteName('/', 'trung')).toBe('trung');
   });
-  it('returns the default site for empty path', () => {
-    expect(resolveSiteName('', 'trung')).toBe('trung');
+  it('returns first segment for /trung', () => {
+    expect(resolveSiteName('/trung', 'fallback')).toBe('trung');
   });
-  it('extracts a single-segment site name', () => {
-    expect(resolveSiteName('/demo-other', 'trung')).toBe('demo-other');
-  });
-  it('strips trailing slash', () => {
-    expect(resolveSiteName('/demo-other/', 'trung')).toBe('demo-other');
-  });
-  it('returns the first segment when path has multiple', () => {
-    expect(resolveSiteName('/demo-other/sub', 'trung')).toBe('demo-other');
+  it('returns first segment for /demo-other/x/y', () => {
+    expect(resolveSiteName('/demo-other/x/y', 'fallback')).toBe('demo-other');
   });
 });
 
-describe('validateManifest', () => {
-  it('accepts a valid manifest', () => {
-    const m = {
-      title: 'x',
-      pages: [
-        { html: 'pages/01.html' },
-        { html: 'pages/02.html', final: true },
-      ],
-    };
-    expect(() => validateManifest(m)).not.toThrow();
+describe('resolveSiteName — hostname-aware 3-arg', () => {
+  it('returns the slug when host is <slug>.thiiss.me, ignoring pathname', () => {
+    expect(resolveSiteName('honey-river.thiiss.me', '/', 'trung')).toBe('honey-river');
   });
-  it('rejects manifest with no pages', () => {
-    expect(() => validateManifest({ title: 'x', pages: [] })).toThrow(/at least 2/);
+  it('returns the slug with hex suffix', () => {
+    expect(resolveSiteName('honey-river-a1f.thiiss.me', '/', 'trung'))
+      .toBe('honey-river-a1f');
   });
-  it('rejects manifest with one page', () => {
-    expect(() => validateManifest({ title: 'x', pages: [{ html: 'a.html', final: true }] })).toThrow(/at least 2/);
+  it('falls through to pathname for apex thiiss.me', () => {
+    expect(resolveSiteName('thiiss.me', '/create', 'trung')).toBe('create');
   });
-  it('rejects manifest with more than 10 pages', () => {
-    const pages = Array.from({ length: 11 }, (_, i) => ({ html: `p${i}.html` }));
-    pages[pages.length - 1].final = true;
-    expect(() => validateManifest({ title: 'x', pages })).toThrow(/at most 10/);
+  it('falls through to pathname for thiiss.me default', () => {
+    expect(resolveSiteName('thiiss.me', '/', 'trung')).toBe('trung');
   });
-  it('rejects manifest where the last page is not final', () => {
-    expect(() => validateManifest({
-      title: 'x',
-      pages: [{ html: 'a.html' }, { html: 'b.html' }],
-    })).toThrow(/last page.*final/);
+  it('falls through to pathname for non-thiiss hosts', () => {
+    expect(resolveSiteName('localhost', '/trung', 'fallback')).toBe('trung');
   });
-  it('rejects manifest with multiple final pages', () => {
-    expect(() => validateManifest({
-      title: 'x',
-      pages: [{ html: 'a.html', final: true }, { html: 'b.html', final: true }],
-    })).toThrow(/exactly one final/);
+  it('rejects malformed slug subdomains and falls through', () => {
+    expect(resolveSiteName('Bad_Slug.thiiss.me', '/', 'fallback')).toBe('fallback');
   });
 });

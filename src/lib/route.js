@@ -1,4 +1,17 @@
-export function resolveSiteName(pathname, defaultSite) {
+const SLUG_RE = /^[a-z]+-[a-z]+(?:-[0-9a-f]{3})?$/;
+
+export function resolveSiteName(...args) {
+  let hostname, pathname, defaultSite;
+  if (args.length === 2) {
+    hostname = null;
+    [pathname, defaultSite] = args;
+  } else {
+    [hostname, pathname, defaultSite] = args;
+  }
+  if (hostname && hostname.endsWith('.thiiss.me')) {
+    const label = hostname.slice(0, -'.thiiss.me'.length);
+    if (SLUG_RE.test(label)) return label;
+  }
   const trimmed = pathname.replace(/^\/+/, '').replace(/\/+$/, '');
   if (!trimmed) return defaultSite;
   const first = trimmed.split('/')[0];

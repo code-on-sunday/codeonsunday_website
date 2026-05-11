@@ -14,7 +14,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   const bgCtx = bgCanvas.getContext('2d');
   let bgReady = false;
 
-  const SITE_NAME = resolveSiteName(location.pathname, 'trung');
+  const SITE_NAME = resolveSiteName(location.hostname, location.pathname, 'trung');
 
   function loadImage(url) {
     return new Promise((resolve, reject) => {
