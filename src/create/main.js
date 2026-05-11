@@ -74,9 +74,59 @@ dropzone.addEventListener('drop', (e) => {
   addFiles(e.dataTransfer.files);
 });
 
-weave.addEventListener('click', () => {
-  errorEl.hidden = false;
-  errorEl.textContent = 'submit not implemented yet';
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlay-text');
+const LOADING_LINES = [
+  'uploading photos…',
+  'weaving the cloth…',
+  'almost there…',
+];
+
+let loadingTimer = null;
+
+function startLoading() {
+  overlay.hidden = false;
+  let i = 0;
+  overlayText.textContent = LOADING_LINES[0];
+  loadingTimer = setInterval(() => {
+    i = (i + 1) % LOADING_LINES.length;
+    overlayText.textContent = LOADING_LINES[i];
+  }, 3000);
+}
+function stopLoading() {
+  clearInterval(loadingTimer);
+  loadingTimer = null;
+  overlay.hidden = true;
+}
+
+const ERROR_TEXT = {
+  photo_count: 'pick 3 to 6 photos',
+  photo_too_large: 'one of your photos is too big — try smaller ones',
+  bad_format: "we couldn't read one of your photos — try JPG or PNG",
+  snapshot_failed: 'something went wrong weaving your page — try again',
+  upload_failed: "we couldn't upload one of your photos — try again",
+  manifest_write_failed: "we couldn't save your page — try again",
+};
+
+weave.addEventListener('click', async () => {
+  if (weave.disabled) return;
+  errorEl.hidden = true;
+  startLoading();
+  try {
+    const fd = new FormData();
+    for (const p of photos) fd.append('photos[]', p.file);
+    const res = await fetch('/api/create', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: 'unknown' }));
+      throw new Error(body.error || 'unknown');
+    }
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch (err) {
+    stopLoading();
+    errorEl.hidden = false;
+    errorEl.textContent = ERROR_TEXT[err.message] || 'something went wrong — try again';
+  }
 });
 
 refresh();
