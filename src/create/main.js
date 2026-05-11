@@ -1,3 +1,5 @@
+import { resizeToJpeg } from './resize.js';
+
 const fileInput = document.getElementById('file-input');
 const dropzone = document.getElementById('dropzone');
 const strip = document.getElementById('strip');
@@ -26,14 +28,24 @@ function nextId() {
   return crypto.randomUUID();
 }
 
-function addFiles(files) {
+async function addFiles(files) {
   for (const file of files) {
     if (photos.length >= MAX) break;
     if (!file.type.startsWith('image/')) continue;
-    const preview = URL.createObjectURL(file);
-    photos.push({ id: nextId(), file, preview });
+    try {
+      const blob = await resizeToJpeg(file);
+      const preview = URL.createObjectURL(blob);
+      photos.push({
+        id: nextId(),
+        file: new File([blob], 'photo.jpg', { type: 'image/jpeg' }),
+        preview,
+      });
+      refresh();
+    } catch (e) {
+      errorEl.hidden = false;
+      errorEl.textContent = `couldn't read ${file.name} — try a JPG or PNG`;
+    }
   }
-  refresh();
 }
 
 function removePhoto(id) {
