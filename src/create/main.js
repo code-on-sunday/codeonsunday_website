@@ -13,28 +13,49 @@ let turnstileToken = null;
 let turnstileWidgetId = null;
 const turnstileEl = document.getElementById('turnstile');
 
-const TURNSTILE_DEADLINE_MS = 10_000;
-const turnstileStart = Date.now();
-
-function tryRenderTurnstile() {
+function renderTurnstileWidget() {
   if (turnstileWidgetId !== null) return;
-  if (window.turnstile && typeof window.turnstile.render === 'function') {
-    turnstileWidgetId = window.turnstile.render(turnstileEl, {
-      sitekey: turnstileEl.dataset.sitekey,
-      callback: (token) => { turnstileToken = token; refresh(); },
-      'error-callback': () => { turnstileToken = null; refresh(); },
-      'expired-callback': () => { turnstileToken = null; refresh(); },
-    });
-    return;
-  }
-  if (Date.now() - turnstileStart > TURNSTILE_DEADLINE_MS) {
-    errorEl.hidden = false;
-    errorEl.textContent = "couldn't load the challenge — disable script blockers and refresh";
-    return;
-  }
-  setTimeout(tryRenderTurnstile, 100);
+  turnstileWidgetId = window.turnstile.render(turnstileEl, {
+    sitekey: turnstileEl.dataset.sitekey,
+    callback: (token) => { console.log('[turnstile] solved'); turnstileToken = token; refresh(); },
+    'error-callback': (code) => { console.warn('[turnstile] error', code); turnstileToken = null; refresh(); },
+    'expired-callback': () => { console.log('[turnstile] expired'); turnstileToken = null; refresh(); },
+  });
+  console.log('[turnstile] render returned widgetId', turnstileWidgetId);
 }
-tryRenderTurnstile();
+
+function showTurnstileLoadError(detail) {
+  console.error('[turnstile] load failed:', detail);
+  errorEl.hidden = false;
+  errorEl.textContent = "couldn't load the challenge — disable script blockers and refresh";
+}
+
+(function loadTurnstile() {
+  const script = document.createElement('script');
+  script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  script.async = true;
+  script.defer = true;
+  script.dataset.cfasync = 'false';
+  script.onerror = () => showTurnstileLoadError('script onerror');
+  script.onload = () => {
+    console.log('[turnstile] api.js onload, render type:', typeof window.turnstile?.render);
+    let attempts = 0;
+    const tryRender = () => {
+      if (window.turnstile && typeof window.turnstile.render === 'function') {
+        renderTurnstileWidget();
+        return;
+      }
+      attempts += 1;
+      if (attempts > 100) {
+        showTurnstileLoadError(`render never became a function (turnstile=${typeof window.turnstile})`);
+        return;
+      }
+      setTimeout(tryRender, 100);
+    };
+    tryRender();
+  };
+  document.head.appendChild(script);
+})();
 
 function refresh() {
   strip.innerHTML = '';
