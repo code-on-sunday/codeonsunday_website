@@ -1,0 +1,22 @@
+{
+  "name": "thiiss-me",
+  "main": "src/worker/index.js",
+  "compatibility_date": "2026-05-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    { "pattern": "thiiss.me/*", "zone_name": "thiiss.me" },
+    { "pattern": "*.thiiss.me/*", "zone_name": "thiiss.me" }
+  ],
+  "assets": {
+    "directory": "./dist-thiiss",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "r2_buckets": [
+    { "binding": "R2_BLOBS", "bucket_name": "thiiss-blobs" }
+  ],
+  "kv_namespaces": [
+    { "binding": "KV_MANIFESTS", "id": "thiiss-manifests-placeholder" }
+  ],
+  "browser": { "binding": "BROWSER" }
+}
