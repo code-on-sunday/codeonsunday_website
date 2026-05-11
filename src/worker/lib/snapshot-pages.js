@@ -19,6 +19,8 @@ export async function snapshotPages(env, slug, pages) {
       const portraitPng = await page.screenshot({ type: 'png' });
 
       await page.setViewport(LANDSCAPE);
+      // Force a layout flush so the orientation-media-query reflow lands before screenshot.
+      await page.evaluate(() => document.body.getBoundingClientRect());
       const landscapePng = await page.screenshot({ type: 'png' });
 
       await Promise.all([

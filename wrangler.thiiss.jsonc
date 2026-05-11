@@ -16,6 +16,9 @@
   "r2_buckets": [
     { "binding": "R2_BLOBS", "bucket_name": "thiiss-blobs" }
   ],
+  // KV namespace id is a placeholder. For local dev (miniflare) any string works
+  // — storage is keyed by binding name. For `wrangler deploy` and `--remote`,
+  // replace with the real id from `wrangler kv namespace create thiiss-manifests`.
   "kv_namespaces": [
     { "binding": "KV_MANIFESTS", "id": "thiiss-manifests-placeholder" }
   ],
