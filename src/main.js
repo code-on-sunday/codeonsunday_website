@@ -352,7 +352,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
 
   let points = [];
   let links  = [];
-  let pinIds = [];
   let originalLinkCount = null;
   let aliveLinkCount = null;
   let hAlive = null;
@@ -382,7 +381,7 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
   }
 
   function buildCloth() {
-    points = []; links = []; pinIds = [];
+    points = []; links = [];
 
     const usableW = W;
     const usableH = H;
@@ -406,7 +405,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
           x: px, y: py, px: px, py: py,
           initX: px, initY: py,
           pinned: false,
-          corner: null,
         });
       }
     }
@@ -430,16 +428,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     for (let y = 0; y < rows; y++) {
       points[idx(0, y)].pinned = true;
       points[idx(cols - 1, y)].pinned = true;
-    }
-    const corners = [
-      { id: idx(0, 0),               name: 'tl' },
-      { id: idx(cols - 1, 0),        name: 'tr' },
-      { id: idx(0, rows - 1),        name: 'bl' },
-      { id: idx(cols - 1, rows - 1), name: 'br' },
-    ];
-    for (const c of corners) {
-      points[c.id].corner = c.name;
-      pinIds.push(c.id);
     }
 
     repaintLayers();
@@ -603,21 +591,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     }
     return grabs;
   }
-  function tryReleaseCorner(x, y) {
-    const r = Math.max(18, Math.min(W, H) * 0.04);
-    const r2 = r * r;
-    for (const id of pinIds) {
-      const p = points[id];
-      if (!p.pinned) continue;
-      const dx = p.x - x, dy = p.y - y;
-      if (dx * dx + dy * dy <= r2) {
-        p.pinned = false;
-        return true;
-      }
-    }
-    return false;
-  }
-
   // ---------- rendering ----------
   // 2D layer paints the *next* page (as a backdrop the size of the cloth) plus
   // pin halos, then GL paints the current cloth on top. Holes in the cloth
@@ -634,20 +607,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
       ctx.drawImage(bgCanvas, originX, originY, cw, ch);
     }
 
-    for (const id of pinIds) {
-      const p = points[id];
-      if (p.pinned) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(122,176,255,0.35)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.pinned ? 9 : 6, 0, Math.PI * 2);
-      ctx.fillStyle = p.pinned ? '#7ab0ff' : 'rgba(255,255,255,0.25)';
-      ctx.fill();
-    }
     renderGL();
   }
 
@@ -660,10 +619,6 @@ import { snapshotBasename, snapshotUrl } from './lib/snapshot-paths.js';
     if (falling) return; // input is locked while the previous cloth tumbles off
     glCanvas.setPointerCapture(e.pointerId);
     const p = pointerPos(e);
-    if (tryReleaseCorner(p.x, p.y)) {
-      pointers.set(e.pointerId, { x: p.x, y: p.y, grabs: [] });
-      return;
-    }
     const grabs = findGrabPoints(p.x, p.y);
     pointers.set(e.pointerId, { x: p.x, y: p.y, grabs });
   });
