@@ -1,26 +1,39 @@
 {
-  "name": "thiiss-me",
-  "main": "src/worker/index.js",
-  "compatibility_date": "2026-05-11",
-  "compatibility_flags": ["nodejs_compat"],
-  "routes": [
-    { "pattern": "thiiss.me/*", "zone_name": "thiiss.me" },
-    { "pattern": "*.thiiss.me/*", "zone_name": "thiiss.me" }
-  ],
-  "assets": {
-    "directory": "./dist-thiiss",
-    "binding": "ASSETS",
-    "not_found_handling": "404-page",
-    "run_worker_first": true
-  },
-  "r2_buckets": [
-    { "binding": "R2_BLOBS", "bucket_name": "thiiss-blobs" }
-  ],
-  // KV namespace id is a placeholder. For local dev (miniflare) any string works
-  // — storage is keyed by binding name. For `wrangler deploy` and `--remote`,
-  // replace with the real id from `wrangler kv namespace create thiiss-manifests`.
-  "kv_namespaces": [
-    { "binding": "KV_MANIFESTS", "id": "thiiss-manifests-placeholder" }
-  ],
-  "browser": { "binding": "BROWSER" }
+	"name": "thiiss-me",
+	"main": "src/worker/index.js",
+	"compatibility_date": "2026-05-11",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"routes": [
+		{
+			"pattern": "thiiss.me/*",
+			"zone_name": "thiiss.me"
+		},
+		{
+			"pattern": "*.thiiss.me/*",
+			"zone_name": "thiiss.me"
+		}
+	],
+	"assets": {
+		"directory": "./dist-thiiss",
+		"binding": "ASSETS",
+		"not_found_handling": "404-page",
+		"run_worker_first": true
+	},
+	"r2_buckets": [
+		{
+			"binding": "R2_BLOBS",
+			"bucket_name": "thiiss-blobs"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "KV_MANIFESTS",
+			"id": "647832fda3364be487c9090b421c814e"
+		}
+	],
+	"browser": {
+		"binding": "BROWSER"
+	}
 }
