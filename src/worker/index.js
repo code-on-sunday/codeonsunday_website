@@ -1,5 +1,6 @@
 import { dispatchRoute } from './router.js';
 import { handleManifest } from './handlers/manifest.js';
+import { handleSnapshot } from './handlers/snapshot.js';
 
 export default {
   async fetch(request, env) {
@@ -20,6 +21,7 @@ export default {
       case 'site-manifest':
         return handleManifest(env, route.slug);
       case 'site-snapshot':
+        return handleSnapshot(env, route.slug, route.base, route.orient);
       case 'site-photo':
       case 'apex-photo':
       case 'site-final-page':
