@@ -1,6 +1,7 @@
 .claude/
 node_modules/
 dist/
+dist-thiiss/
 .DS_Store
 *.heic
 .superpowers/
