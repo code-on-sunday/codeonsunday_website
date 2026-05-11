@@ -39,3 +39,15 @@ describe('renderPage photo', () => {
     expect(r6).toContain('rotate(-3deg)'); // same as index 0
   });
 });
+
+describe('renderPage final', () => {
+  it('embeds the last photo URL', () => {
+    const html = renderPage('final', {
+      paletteIndex: 0,
+      photoUrl: 'https://thiiss.me/photo/honey-river/3.jpg',
+    });
+    expect(html).toContain('src="https://thiiss.me/photo/honey-river/3.jpg"');
+    expect(html).toContain('tear your own');
+    expect(html).toContain('https://thiiss.me/create');
+  });
+});

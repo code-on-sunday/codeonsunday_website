@@ -110,10 +110,49 @@ body { background: ${gradientBackground(p)}; }
 </html>`;
 }
 
+function renderFinal({ paletteIndex, photoUrl }) {
+  const p = paletteFor(paletteIndex);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>tear your own</title>
+<style>${COMMON_STYLE}
+body { background: ${gradientBackground(p)}; }
+.pic { position: absolute; left: 50%; top: 32vh;
+       transform: translate(-50%, -50%) rotate(-2deg); width: 56vw; }
+.cta { position: absolute; left: 50%; top: 66vh; transform: translate(-50%, -50%) rotate(-2deg);
+       font-size: 12vw; --from: #ff5e8a; --to: #ff9a3c; text-decoration: none; }
+.cta:visited { color: inherit; }
+.btn { position: absolute; left: 50%; bottom: 8vh; transform: translateX(-50%);
+       font-family: inherit; font-size: 5vw; padding: 1em 1.4em;
+       border: 0; border-radius: 999px; background: #3d2c4f; color: #fff8ef;
+       text-decoration: none; box-shadow: 0.4vmin 0.6vmin 0 rgba(40,20,60,0.30); }
+@media (orientation: landscape) {
+  .pic { width: 24vw; top: 50vh; left: 28vw; }
+  .cta { left: 64vw; top: 44vh; font-size: 7vw; }
+  .btn { left: 64vw; bottom: auto; top: 64vh; font-size: 2.4vw; transform: translate(-50%, -50%); }
+}
+</style>
+</head>
+<body>
+<div class="page sparkles">
+  <div class="pic">
+    <figure class="polaroid"><img src="${photoUrl}" alt="" /></figure>
+  </div>
+  <a class="grad cta" href="https://thiiss.me/create">tear your own →</a>
+  <a class="btn" href="https://thiiss.me/create">make yours</a>
+</div>
+</body>
+</html>`;
+}
+
 export function renderPage(kind, opts) {
   switch (kind) {
     case 'intro': return renderIntro(opts);
     case 'photo': return renderPhoto(opts);
+    case 'final': return renderFinal(opts);
     default: throw new Error(`renderPage: unknown kind ${kind}`);
   }
 }
