@@ -57,7 +57,10 @@ function nextId() {
 }
 
 async function addFiles(files) {
-  for (const file of files) {
+  // Snapshot synchronously: a FileList from <input> goes empty when we clear
+  // input.value after returning, which would end this loop after one iteration.
+  const list = Array.from(files);
+  for (const file of list) {
     if (photos.length >= MAX) break;
     if (!file.type.startsWith('image/')) continue;
     try {
