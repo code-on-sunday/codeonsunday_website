@@ -10,10 +10,17 @@ const MAX = 6;
 const MIN = 3;
 let photos = []; // [{ id, file, preview }]
 let turnstileToken = null;
+let turnstileWidgetId = null;
+const turnstileEl = document.getElementById('turnstile');
 
-window.onTurnstileSuccess = (token) => { turnstileToken = token; refresh(); };
-window.onTurnstileError = () => { turnstileToken = null; refresh(); };
-window.onTurnstileExpired = () => { turnstileToken = null; refresh(); };
+window.onTurnstileLoad = () => {
+  turnstileWidgetId = window.turnstile.render(turnstileEl, {
+    sitekey: turnstileEl.dataset.sitekey,
+    callback: (token) => { turnstileToken = token; refresh(); },
+    'error-callback': () => { turnstileToken = null; refresh(); },
+    'expired-callback': () => { turnstileToken = null; refresh(); },
+  });
+};
 
 function refresh() {
   strip.innerHTML = '';
@@ -134,7 +141,7 @@ weave.addEventListener('click', async () => {
   } catch (err) {
     stopLoading();
     turnstileToken = null;
-    if (window.turnstile) window.turnstile.reset('#turnstile');
+    if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
     refresh();
     errorEl.hidden = false;
     errorEl.textContent = ERROR_TEXT[err.message] || 'something went wrong — try again';

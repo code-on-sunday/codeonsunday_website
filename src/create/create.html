@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>thiiss.me — make yours</title>
 <link rel="stylesheet" href="./style.css" />
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
 </head>
 <body>
   <main class="page sparkles">
@@ -16,14 +16,7 @@
       <span class="dropzone__cta">tap or drop here</span>
     </label>
     <ul class="strip" id="strip"></ul>
-    <div
-      class="cf-turnstile"
-      id="turnstile"
-      data-sitekey="0x4AAAAAADM95inWGjTAgH-f"
-      data-callback="onTurnstileSuccess"
-      data-error-callback="onTurnstileError"
-      data-expired-callback="onTurnstileExpired"
-    ></div>
+    <div id="turnstile" data-sitekey="0x4AAAAAADM95inWGjTAgH-f"></div>
     <button class="weave" id="weave" disabled>weave my page</button>
   </main>
   <div class="overlay" id="overlay" hidden>
